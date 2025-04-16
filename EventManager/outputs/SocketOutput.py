@@ -1,2 +1,4 @@
+from EventManager.outputs.Output import Output
 
-class SocketOutput:
+
+class SocketOutput(Output):

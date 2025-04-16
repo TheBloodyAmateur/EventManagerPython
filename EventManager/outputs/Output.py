@@ -1,5 +1,7 @@
 from abc import abstractmethod
 
+from EventManager import InternalEventManager
+
 
 class Output():
 

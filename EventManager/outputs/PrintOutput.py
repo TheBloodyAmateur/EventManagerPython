@@ -1,3 +1,4 @@
+from EventManager import InternalEventManager
 from EventManager.outputs.Output import Output
 
 
@@ -14,7 +15,7 @@ class PrintOutput(Output):
         """
         print(event)
 
-    def write(self, internal_event_manager: 'InternalEventManager', event: str):
+    def write(self, internal_event_manager: InternalEventManager, event: str):
         """
         Writes the event to the standard output.
 

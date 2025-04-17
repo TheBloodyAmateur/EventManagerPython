@@ -1,10 +1,8 @@
+from EventManager.filehandlers.config.processor_entry import ProcessorEntry
+
 
 class DefaultProcessors():
-    """
-    This class contains the default processors that are used in the application.
-    """
-    @staticmethod
-    def createDefault() -> list:
+    def __init__(self) -> list:
         entry: ProcessorEntry = ProcessorEntry()
         entry.setName("MaskPasswords")
         entry.setParameters(None)

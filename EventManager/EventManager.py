@@ -1,3 +1,5 @@
+from EventManager import InternalEventManager
+from EventManager.filehandlers.log_handler import LogHandler
 from EventManager.internal.ManagerBase import ManagerBase
 
 

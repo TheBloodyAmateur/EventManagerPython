@@ -1,6 +1,7 @@
-class ProcessorEntry:
+
+class OutputEntry():
     """
-    The `ProcessorEntry` class represents a configuration entry for an event processor.
+    The `OutputEntry` class represents an output entry in the configuration.
     """
     __name: str
     __parameters: dict[str, object]
@@ -8,6 +9,7 @@ class ProcessorEntry:
     def __init__(self, name: str = "", parameters: dict[str, object] = None):
         self.__name = name
         self.__parameters = parameters if parameters else {}
+
 
     @property
     def get_name(self) -> str:

@@ -1,4 +1,4 @@
-from pydantic import BaseModel, PrivateAttr
+from pydantic import BaseModel, Field
 
 from EventManager.filehandlers.config.config_event import ConfigEvent
 from EventManager.filehandlers.config.config_internal_events import ConfigInternalEvents
@@ -25,8 +25,8 @@ class Config(BaseModel):
     __log_file: ConfigLogFile = ConfigLogFile()
     __log_rotate_config: ConfigLogRotate = ConfigLogRotate()
     __internal_events: ConfigInternalEvents = ConfigInternalEvents()
-    __processors: list[ProcessorEntry] = default_processors
-    __outputs: list[OutputEntry] = default_outputs
+    __processors = default_processors()
+    __outputs = default_outputs()
 
     @property
     def event(self) -> ConfigEvent:
@@ -48,3 +48,20 @@ class Config(BaseModel):
     def processors(self) -> list[ProcessorEntry]:
         return self.__processors
 
+    @property
+    def outputs(self) -> list[OutputEntry]:
+        return self.__outputs
+
+    def get_processors(self) -> list[ProcessorEntry]:
+        """
+        Get the list of processors.
+        :return: List of processors.
+        """
+        return self.__processors
+
+    def get_outputs(self) -> list[OutputEntry]:
+        """
+        Get the list of outputs.
+        :return: List of outputs.
+        """
+        return self.__outputs

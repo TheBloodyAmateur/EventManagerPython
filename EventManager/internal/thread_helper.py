@@ -2,25 +2,28 @@ import queue
 import threading
 
 
-class ThreadHelper():
-    __eventThread: threading.Thread
-    __processingThread: threading.Thread
+class ThreadHelper:
+    """
+    A helper class to manage threads in the EventManager.
+    """
+    __event_thread: threading.Thread
+    __processing_thread: threading.Thread
 
     @property
-    def get_event_thread(self):
+    def event_thread(self):
         """
         Returns the event thread.
         :return:
         """
-        return self.__eventThread
+        return self.__event_thread
 
     @property
-    def get_processing_thread(self):
+    def processing_thread(self):
         """
         Returns the processing thread.
         :return:
         """
-        return self.__processingThread
+        return self.__processing_thread
 
     def start_event_thread(self, runnable: callable):
         """
@@ -28,8 +31,8 @@ class ThreadHelper():
         :param runnable:
         :return:
         """
-        self.__eventThread = threading.Thread(target=runnable)
-        self.__eventThread.start()
+        self.__event_thread = threading.Thread(target=runnable)
+        self.__event_thread.start()
 
     def start_processing_thread(self, runnable: callable):
         """
@@ -37,8 +40,8 @@ class ThreadHelper():
         :param runnable:
         :return:
         """
-        self.__eventThread = threading.Thread(target=runnable)
-        self.__eventThread.start()
+        self.__processing_thread = threading.Thread(target=runnable)
+        self.__processing_thread.start()
 
     def stop_thread(self, thread: threading.Thread, q: queue.Queue, remaining_item_processor: callable):
         """
@@ -58,3 +61,4 @@ class ThreadHelper():
                     remaining_item_processor(event)
             except queue.Empty:
                 break
+        print("Thread stopped and remaining items processed.")

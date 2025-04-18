@@ -12,7 +12,7 @@ class OutputHelper():
     A helper class to manage output instances for the EventManager.
     """
 
-    _outputs: list
+    _outputs: list = []
     __log_handler: LogHandler
 
     def __init__(self, log_handler: LogHandler):
@@ -58,7 +58,7 @@ class OutputHelper():
         """
         outputs = []
         for entry in self.__log_handler.config.get_outputs():
-            output_instance = self.__create_output_instance(entry.name(), entry.parameters())
+            output_instance = self.__create_output_instance(entry.name, entry.parameters)
             if output_instance is not None:
                 outputs.append(output_instance)
         return outputs

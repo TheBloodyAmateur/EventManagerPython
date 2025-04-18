@@ -1,24 +1,24 @@
 import queue
 import threading
 
+from EventManager.filehandlers.config.output_entry import OutputEntry
 from EventManager.formatters.event_formatter import EventFormatter
 from EventManager.internal.event_metadata_builder import EventMetaDataBuilder
 from EventManager.internal.processor_helper import ProcessorHelper
 from typing import TYPE_CHECKING
+from EventManager.internal.thread_helper import ThreadHelper
 
 if TYPE_CHECKING:
     from EventManager.internal.output_helper import OutputHelper
-    from EventManager.internal.thread_helper import ThreadHelper
 
 
-class ManagerBase():
+class ManagerBase:
     _log_handler = None
     _processor_helper: 'ProcessorHelper'
     _output_helper: 'OutputHelper'
-    # TODO: Add change the java class name for the queue to a pythonic equivalent
-    _event_queue: queue
-    _processing_queue: queue
-    _thread_helper: 'ThreadHelper'
+    _event_queue: queue = queue.Queue()
+    _processing_queue: queue = queue.Queue()
+    _thread_helper: 'ThreadHelper' = ThreadHelper()
 
     def __init__(self, log_handler = None, config_path: str = None):
         """
@@ -98,7 +98,7 @@ class ManagerBase():
                     print(f"Error processing remaining events: {str(e)}")
 
         self._thread_helper.stop_thread(
-            self._thread_helper.get_processing_thread, self._processing_queue, process_remaining_event
+            self._thread_helper.processing_thread, self._processing_queue, process_remaining_event
         )
 
         def output_remaining_event(event):
@@ -111,7 +111,7 @@ class ManagerBase():
                     print(f"Error writing remaining events: {str(e)}")
 
         self._thread_helper.stop_thread(
-            self._thread_helper.get_processing_thread, self._event_queue, output_remaining_event
+            self._thread_helper.processing_thread, self._event_queue, output_remaining_event
         )
 
     def write_event_to_queue(self, event):
@@ -140,7 +140,7 @@ class ManagerBase():
         :param messages: A single message (Exception or str), or multiple KeyValueWrapper instances.
         """
         meta_data = EventMetaDataBuilder.build_metadata(level, self._log_handler)
-        event_format = self._log_handler.config.event.get_event_format
+        event_format = self._log_handler.config.event.event_format
 
         if len(messages) == 1 and isinstance(messages[0], (str, Exception)):
             # Handle single message string or exception
@@ -215,7 +215,7 @@ class ManagerBase():
         Checks if information or debugging logs are enabled.
         :return: True if information or debugging logs are enabled, False otherwise.
         """
-        information_mode = self._log_handler.config.internal_events.get_information_mode
-        debugging_mode = self._log_handler.config.internal_events.get_debugging_mode
+        information_mode = self._log_handler.config.event.informational_mode
+        debugging_mode = self._log_handler.config.event.debugging_mode
         return information_mode or debugging_mode
 

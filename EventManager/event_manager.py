@@ -36,7 +36,7 @@ class EventManager(ManagerBase):
         else:
             raise ValueError("Either log_handler or config_path must be provided.")
 
-        self.__internal_event_manager = self._log_handler.get_internal_event_manager()
+        self.__internal_event_manager = self._log_handler.internal_event_manager
         self.__internal_event_manager.log_info("EventManager started successfully.")
         self.__internal_event_manager.log_info("Initializing event thread...")
         self._initiate_threads(self.__internal_event_manager)
@@ -45,11 +45,11 @@ class EventManager(ManagerBase):
         """
         Stops the event processing pipeline.
         """
-        self._stop_all_threads(self.__internalEventManager)
-        self.__internalEventManager.log_info("EventManager stopped successfully.")
-        self.__internalEventManager.log_info(
+        self._stop_all_threads(self.__internal_event_manager)
+        self.__internal_event_manager.log_info("EventManager stopped successfully.")
+        self.__internal_event_manager.log_info(
             "EventManager stopped successfully. Shutting down internal event manager...")
-        self.__internalEventManager.stop_pipeline()
+        self.__internal_event_manager.stop_pipeline()
 
     @staticmethod
     def set_correct_os_seperator(path: str) -> str:

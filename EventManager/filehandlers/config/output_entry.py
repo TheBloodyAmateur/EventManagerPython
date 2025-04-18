@@ -20,9 +20,9 @@ class OutputEntry():
         return self.__parameters
 
     @get_name.setter
-    def set_name(self, name: str):
+    def name(self, name: str):
         self.__name = name
 
     @get_parameters.setter
-    def set_parameters(self, parameters: dict[str, object]):
+    def parameters(self, parameters: dict[str, object]):
         self.__parameters = parameters

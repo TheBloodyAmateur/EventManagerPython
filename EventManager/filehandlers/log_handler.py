@@ -35,15 +35,17 @@ class LogHandler():
         """
         Load the config file and set the config attribute.
         """
-        file_name: str = self.__config.log_file().get_file_name()
-        file_extension: str = self.__config.log_file().get_file_extension()
+        file_name: str = self.__config.log_file.file_name
+        file_extension: str = self.__config.log_file.file_extension
         self.__current_file_name = self.__create_new_file_name(file_name, file_extension)
-        file_path: str = self.__config.log_file().get_file_path()
-        self.__config.log_file.set_file_path(self.__set_correct_file_path(file_path))
-        file_path: str = self.__config.internal_events().get_file_path()
-        self.__config.internal_events().set_file_path(self.__set_correct_file_path(file_path))
 
-    def __set_correct_file_path(file_path: str) -> str:
+        file_path: str = self.__config.log_file.file_path
+        self.__config.log_file.file_path = self.__set_correct_file_path(file_path)
+
+        file_path: str = self.__config.internal_events.file_path
+        self.__config.internal_events.file_path = self.__set_correct_file_path(file_path)
+
+    def __set_correct_file_path(self, file_path: str) -> str:
         """
         Sets the correct file path. If the file path does not exist, the default file path is
         used based on the operating system.
@@ -94,8 +96,8 @@ class LogHandler():
         the internal event manager will print to console. Otherwise, it will create a new file
         with the specified file name and file extension.
         """
-        file_name = self.__config.internal_events.get_file_name
-        file_extension = self.__config.internal_events.get_file_extension
+        file_name = self.__config.internal_events.file_name
+        file_extension = self.__config.internal_events.file_extension
         self.__current_internal_file_name = self.__create_new_file_name(file_name,file_extension)
         self.__internal_event_manager = InternalEventManager(self)
 
@@ -150,4 +152,14 @@ class LogHandler():
         os.rename(file, new_file_path)
 
     def check_if_log_file_exists(self):
-        pass
+        """
+        Check if the log file exists.
+
+        :return: True if the log file exists, False otherwise.
+        """
+        log_file_path = self.config.log_file.file_path
+        file_name = self.config.log_file.file_name
+        file_extension = self.config.log_file.file_extension
+
+        log_file = os.path.join(log_file_path, f"{file_name}{file_extension}")
+        return os.path.exists(log_file)

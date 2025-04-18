@@ -14,14 +14,15 @@ def atomic_int(initial: int) -> atomics.atomic:
     a.store(initial)
     return a
 
+
 def default_processors() -> list[ProcessorEntry]:
     """
     Create a list of default processors for the EventManager.
     :return:  A list containing a single ProcessorEntry instance.
     """
     entry: ProcessorEntry = ProcessorEntry()
-    entry.set_name = "MaskPasswords"
-    entry.set_parameters = None
+    entry.name = "MaskPasswords"
+    entry.parameters = None
     return [entry]
 
 def default_outputs() -> list[OutputEntry]:
@@ -30,6 +31,6 @@ def default_outputs() -> list[OutputEntry]:
     :return:  A list containing a single OutputEntry instance.
     """
     entry: OutputEntry = OutputEntry()
-    entry.setName="LogOutput"
-    entry.setParameters=None
+    entry.name = "LogOutput"
+    entry.parameters = None
     return [entry]

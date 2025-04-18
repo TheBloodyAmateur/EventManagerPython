@@ -8,33 +8,33 @@ class ConfigInternalEvents(BaseModel):
     __enabled: bool = True
 
     @property
-    def get_file_path(self) -> str:
+    def file_path(self) -> str:
         return self.__file_path
 
     @property
-    def get_file_name(self) -> str:
+    def file_name(self) -> str:
         return self.__file_name
 
     @property
-    def get_file_extension(self) -> str:
+    def file_extension(self) -> str:
         return self.__file_extension
 
     @property
-    def get_enabled(self) -> bool:
+    def enabled(self) -> bool:
         return self.__enabled
 
-    @get_file_path.setter
-    def set_file_path(self, value: str):
+    @file_path.setter
+    def file_path(self, value: str):
         self.__file_path = value
 
-    @get_file_name.setter
-    def set_file_name(self, value: str):
+    @file_name.setter
+    def file_name(self, value: str):
         self.__file_name = value
 
-    @get_file_extension.setter
-    def set_file_extension(self, value: str):
+    @file_extension.setter
+    def file_extension(self, value: str):
         self.__file_extension = value
 
-    @get_enabled.setter
-    def set_enabled(self, value: bool):
+    @enabled.setter
+    def enabled(self, value: bool):
         self.__enabled = value

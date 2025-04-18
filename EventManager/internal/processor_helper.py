@@ -4,7 +4,7 @@ from EventManager.processors import Processor, MaskIPV4Address, EnrichingProcess
 
 
 class ProcessorHelper():
-    __processors: list
+    _processors: list = []
     __log_handler = None
 
     def __init__(self, log_handler):
@@ -80,17 +80,15 @@ class ProcessorHelper():
         """
         return any(p.__class__ == processor.__class__ for p in processors)
 
-    def process_event(self, event: str, processors, log_handler):
+    def process_event(self, event: str):
         """
         Processes an event by passing it through all registered processors.
 
         :param event: The event to process.
-        :param processors: List of registered processors.
-        :param log_handler: Log handler containing configuration details.
         :return: The processed event.
         """
-        for processor in processors:
-            event_format = log_handler.config.event.get_event_format
+        for processor in self._processors:
+            event_format = self.__log_handler.config.event.event_format
             if event_format == "kv":
                 event = processor.process_kv(event)
             elif event_format == "xml":
@@ -104,7 +102,8 @@ class ProcessorHelper():
         Initializes the processors by creating instances based on the configuration.
         :return:
         """
-        for entry in self.__log_handler.config.processors():
+        test = self.__log_handler.config.get_processors()
+        for entry in test:
             processor = self.__create_processor_instance(entry.name, entry.parameters)
             if processor and not self.__is_processor_already_registered(processor):
                 self.__processors.append(processor)

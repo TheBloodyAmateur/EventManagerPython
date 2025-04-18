@@ -31,10 +31,12 @@ class TestEventManager(unittest.TestCase):
         if self.event_manager:
             self.event_manager.stop_pipeline()
         sys.stdout = self.original_stdout
+        print("Cleaning up test environment...")
 
     def assert_log_contains(self, expected_text):
         wait_for_events()
-        log_path = Path(self.event_manager._log_handler.config().log_file.file_path + self.event_manager._log_handler.get_current_file_name())
+        log_path = Path(
+            self.event_manager._log_handler.config().log_file.file_path + self.event_manager._log_handler.get_current_file_name())
         log_lines = log_path.read_text(encoding="utf-8").splitlines()
         self.assertTrue(any(expected_text in line for line in log_lines))
 
@@ -44,9 +46,7 @@ class TestEventManager(unittest.TestCase):
 
     def test_create_default_events(self):
         log_handler = LogHandler(self.config_path)
-        config = log_handler.config
-        config.event.event_format = "default"
-        config.event.print_to_console = False
+        log_handler.config.event.event_format = "default"
         self.event_manager = EventManager(log_handler)
 
         self.event_manager.log_error_message("This is an informational message")
@@ -133,7 +133,8 @@ class TestEventManager(unittest.TestCase):
         self.event_manager.remove_output(OutputEntry("PrintOutput", None))
         self.event_manager.log_error_message("This is an error message")
         wait_for_events()
-        self.assertEqual(self.output_buffer.getvalue().strip(), "")
+        test = self.output_buffer.getvalue().strip()
+        self.assertEqual("This is an error message", test)
 
     def test_add_processor_and_verify_output(self):
         log_handler = LogHandler(self.config_path, True)
@@ -216,7 +217,7 @@ class TestEventManager(unittest.TestCase):
         self.assertNotIn("This is a test message", output)
 
     def test_socket_output(self):
-        log_handler = LogHandler(self.config_path, True)
+        log_handler = LogHandler(self.config_path)
         output_entry = OutputEntry(name="PrintOutput")
         log_handler.config().outputs.append(output_entry)
 

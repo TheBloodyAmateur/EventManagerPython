@@ -18,9 +18,9 @@ class ProcessorEntry:
         return self.__parameters
 
     @name.setter
-    def set_name(self, name: str):
+    def name(self, name: str):
         self.__name = name
 
     @parameters.setter
-    def set_parameters(self, parameters: dict[str, object]):
+    def parameters(self, parameters: dict[str, object]):
         self.__parameters = parameters

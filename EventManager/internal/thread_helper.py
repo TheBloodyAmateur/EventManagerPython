@@ -6,6 +6,22 @@ class ThreadHelper():
     __eventThread: threading.Thread
     __processingThread: threading.Thread
 
+    @property
+    def get_event_thread(self):
+        """
+        Returns the event thread.
+        :return:
+        """
+        return self.__eventThread
+
+    @property
+    def get_processing_thread(self):
+        """
+        Returns the processing thread.
+        :return:
+        """
+        return self.__processingThread
+
     def start_event_thread(self, runnable: callable):
         """
         Starts the event thread with the given runnable function.

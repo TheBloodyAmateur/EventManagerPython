@@ -8,6 +8,7 @@ from datetime import datetime
 from pathlib import Path
 
 from EventManager import InternalEventManager
+from EventManager.filehandlers.config.config import Config
 
 
 class LogHandler():
@@ -20,6 +21,10 @@ class LogHandler():
     def __init__(self, config_path:str):
         self.__load_config_file(config_path)
         self.__set_initial_values()
+
+    @property
+    def get_config(self) -> Config:
+        return self.__config
 
 
     def __set_initial_values(self, config_path: str):

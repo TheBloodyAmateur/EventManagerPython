@@ -1,5 +1,8 @@
+import threading
 import traceback
 
+from EventManager.formatters.event_formatter import EventFormatter
+import time
 
 class EventCreator:
     """
@@ -56,9 +59,219 @@ class EventCreator:
         else:
             self.event.append(f"{key}={value}")
 
+    def _append_arguments(self, *args):
+        """
+        Appends the arguments to the event log.
+
+        :param args: The arguments to append.
+        """
+        for arg in args:
+            self._append_element("argument", arg)
+            self._append_separator()
+
     def _append_separator(self):
         """
         Appends a separator to the event log.
         """
         if self.__format_separator and self.__event_format not in ["json", "xml"]:
             self.event.append(self.__format_separator)
+
+    def line_number(self) -> "EventCreator":
+        """
+        Appends the line number to the event log.
+
+        :return: The EventCreator instance.
+        """
+        self._append_element("line_number", self.__line_number)
+        return self
+
+    def class_name(self) -> "EventCreator":
+        """
+        Appends the class name to the event log.
+
+        :return: The EventCreator instance.
+        """
+        self._append_element("class_name", self.__class_name)
+        return self
+
+    def method_name(self) -> "EventCreator":
+        """
+        Appends the method name to the event log.
+
+        :return: The EventCreator instance.
+        """
+        self._append_element("method_name", self.__method_name)
+        self._append_separator()
+        return self
+
+    def timestamp(self, timestamp_format: str) -> "EventCreator":
+        """
+        Appends the timestamp to the event log.
+
+        :return: The EventCreator instance.
+        """
+        def is_valid_time_format(time_format: str) -> bool:
+            if time_format is None or time_format.strip() == "":
+                return False
+            try:
+                time.strftime(time_format)
+                return True
+            except ValueError:
+                return False
+
+        if is_valid_time_format(timestamp_format):
+            self._append_element("timestamp", time.strftime(timestamp_format))
+        else:
+            timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
+            self._append_element("timestamp", timestamp)
+        self._append_separator()
+        return self
+
+    def level(self, level: str) -> "EventCreator":
+        """
+        Appends the level to the event log.
+
+        :param level: The level of the event log.
+        :return: The EventCreator instance.
+        """
+        self._append_element("level", level)
+        self._append_separator()
+        return self
+
+    def fatal_level(self) -> "EventCreator":
+        """
+        Appends the fatal level to the event log.
+
+        :return: The EventCreator instance.
+        """
+        self._append_element("level", "FATAL")
+        self._append_separator()
+        return self
+
+    def error_level(self) -> "EventCreator":
+        """
+        Appends the error level to the event log.
+
+        :return: The EventCreator instance.
+        """
+        self._append_element("level", "ERROR")
+        self._append_separator()
+        return self
+
+    def warning_level(self) -> "EventCreator":
+        """
+        Appends the warning level to the event log.
+
+        :return: The EventCreator instance.
+        """
+        self._append_element("level", "WARNING")
+        self._append_separator()
+        return self
+
+    def info_level(self) -> "EventCreator":
+        """
+        Appends the info level to the event log.
+
+        :return: The EventCreator instance.
+        """
+        self._append_element("level", "INFO")
+        self._append_separator()
+        return self
+
+    def debug_level(self) -> "EventCreator":
+        """
+        Appends the debug level to the event log.
+
+        :return: The EventCreator instance.
+        """
+        self._append_element("level", "DEBUG")
+        self._append_separator()
+        return self
+
+    def exception(self, exception: Exception) -> "EventCreator":
+        """
+        Appends the exception to the event log.
+
+        :param exception: The exception to append.
+        :return: The EventCreator instance.
+        """
+        self._append_element("exception", str(exception))
+        self._append_separator()
+        return self
+
+    def message(self, message: str) -> "EventCreator":
+        """
+        Appends the message to the event log.
+
+        :param message: The message to append.
+        :return: The EventCreator instance.
+        """
+        self._append_element("message", message)
+        self._append_separator()
+        return self
+
+    def arguments(self, *args) -> "EventCreator":
+        """
+        Appends the arguments to the event log.
+
+        :param args: The arguments to append.
+        :return: The EventCreator instance.
+        """
+        self._append_arguments(*args)
+        return self
+
+    def thread_id(self) -> "EventCreator":
+        """
+        Appends the thread ID to the event log.
+
+        :return: The EventCreator instance.
+        """
+        self._append_element("thread_id", str(threading.get_ident()))
+        self._append_separator()
+        return self
+
+    def thread_name(self) -> "EventCreator":
+        """
+        Appends the thread name to the event log.
+
+        :return: The EventCreator instance.
+        """
+        self._append_element("thread_name", threading.current_thread().name)
+        self._append_separator()
+        return self
+
+    def hostname(self) -> "EventCreator":
+        """
+        Appends the hostname to the event log.
+
+        :return: The EventCreator instance.
+        """
+        self._append_element("hostname", threading.get_ident())
+        self._append_separator()
+        return self
+
+    def ip_address(self) -> "EventCreator":
+        """
+        Appends the IP address to the event log.
+
+        :return: The EventCreator instance.
+        """
+        self._append_element("ip_address", threading.get_ident())
+        self._append_separator()
+        return self
+
+    def create_event(self) -> str:
+        """
+        Creates the event log.
+
+        :return: The event log.
+        """
+        if self.__event_format == "json":
+            return str(self.event).replace("'", '"')
+        elif self.__event_format == "xml":
+            self.event.append("</event>")
+            return "".join(self.event)
+        elif self.__event_format == "csv":
+            return self.format_separator.join(self.event)
+        else:
+            return self.format_separator.join(self.event)

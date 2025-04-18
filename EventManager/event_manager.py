@@ -1,10 +1,13 @@
+"""
+EventManager is a logging module designed to be used in a multi-threaded environment.
+"""
 import time
 
-from EventManager import InternalEventManager
-from EventManager.filehandlers.log_handler import LogHandler
 from EventManager.formatters.event_creator import EventCreator
 from EventManager.formatters.key_value_wrapper import KeyValueWrapper
 from EventManager.internal.managerbase import ManagerBase
+from EventManager.internal_event_manager import InternalEventManager
+from EventManager.filehandlers.log_handler import LogHandler
 
 
 class EventManager(ManagerBase):
@@ -224,7 +227,8 @@ class EventManager(ManagerBase):
 
     def monitor(self, operation_name: str, threshold_ms: int, task: callable):
         """
-        Monitors the execution time of a task and logs an error message if it exceeds the specified threshold.
+        Monitors the execution time of a task and logs an error message if it exceeds the
+        specified threshold.
 
         :param operation_name: Name of the operation being monitored.
         :param threshold_ms: Duration threshold in nanoseconds.

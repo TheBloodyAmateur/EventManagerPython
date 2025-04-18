@@ -8,7 +8,7 @@ class LogOutput(Output):
         try:
             if not log_handler.check_if_internal_log_file_exists():
                 log_handler.create_internal_log_file()
-            file_path = log_handler.get_config().get_internal_events().get_file_path()
+            file_path = log_handler.config().internal_events().get_file_path()
             with open(os.path.join(file_path, log_handler.get_current_internal_file_name()), "a") as file:
                 file.write(event + "\n")
         except Exception as e:
@@ -19,7 +19,7 @@ class LogOutput(Output):
             log_handler = internal_event_manager.get_log_handler()
             if not log_handler.check_if_log_file_exists():
                 log_handler.create_log_file()
-            file_path = log_handler.get_config().get_log_file().get_file_path()
+            file_path = log_handler.config().log_file().get_file_path()
             with open(os.path.join(file_path, log_handler.get_current_file_name()), "a") as file:
                 file.write(event + "\n")
         except Exception as e:

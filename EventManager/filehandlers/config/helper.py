@@ -20,8 +20,8 @@ def default_processors() -> list[ProcessorEntry]:
     :return:  A list containing a single ProcessorEntry instance.
     """
     entry: ProcessorEntry = ProcessorEntry()
-    entry.setName("MaskPasswords")
-    entry.setParameters(None)
+    entry.set_name = "MaskPasswords"
+    entry.set_parameters = None
     return [entry]
 
 def default_outputs() -> list[OutputEntry]:
@@ -30,6 +30,6 @@ def default_outputs() -> list[OutputEntry]:
     :return:  A list containing a single OutputEntry instance.
     """
     entry: OutputEntry = OutputEntry()
-    entry.setName("LogOutput")
-    entry.setParameters(None)
+    entry.setName="LogOutput"
+    entry.setParameters=None
     return [entry]

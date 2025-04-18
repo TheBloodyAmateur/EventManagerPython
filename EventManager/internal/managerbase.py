@@ -1,32 +1,36 @@
 import queue
 import threading
 
-from EventManager.InternalEventManager import InternalEventManager
-from EventManager.filehandlers.config.output_entry import OutputEntry
-from EventManager.filehandlers.log_handler import LogHandler
 from EventManager.formatters.event_formatter import EventFormatter
 from EventManager.internal.event_metadata_builder import EventMetaDataBuilder
-from EventManager.internal.output_helper import OutputHelper
 from EventManager.internal.processor_helper import ProcessorHelper
-from EventManager.internal.thread_helper import ThreadHelper
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from EventManager.internal.output_helper import OutputHelper
+    from EventManager.internal.thread_helper import ThreadHelper
 
 
 class ManagerBase():
-    _log_handler: LogHandler
-    _processor_helper: ProcessorHelper
-    _output_helper: OutputHelper
+    _log_handler = None
+    _processor_helper: 'ProcessorHelper'
+    _output_helper: 'OutputHelper'
     # TODO: Add change the java class name for the queue to a pythonic equivalent
     _event_queue: queue
     _processing_queue: queue
-    _thread_helper: ThreadHelper
+    _thread_helper: 'ThreadHelper'
 
-    def __init__(self, log_handler: 'LogHandler' = None, config_path: str = None):
+    def __init__(self, log_handler = None, config_path: str = None):
         """
         Initializes the ManagerBase with either a LogHandler or a config path.
 
         :param log_handler: An existing LogHandler instance.
         :param config_path: A path to a config file to create a LogHandler.
         """
+
+        from EventManager.filehandlers.log_handler import LogHandler
+        from EventManager.internal.output_helper import OutputHelper
+
         if log_handler:
             self._log_handler = log_handler
         elif config_path:
@@ -136,7 +140,7 @@ class ManagerBase():
         :param messages: A single message (Exception or str), or multiple KeyValueWrapper instances.
         """
         meta_data = EventMetaDataBuilder.build_metadata(level, self._log_handler)
-        event_format = self._log_handler.get_config.get_event.get_event_format
+        event_format = self._log_handler.config.event.get_event_format
 
         if len(messages) == 1 and isinstance(messages[0], (str, Exception)):
             # Handle single message string or exception
@@ -164,7 +168,7 @@ class ManagerBase():
 
         self.write_event_to_processing_queue(event)
 
-    def add_output(self, output_entry: OutputEntry) -> bool:
+    def add_output(self, output_entry: 'OutputEntry') -> bool:
         return self._output_helper.add_output(output_entry)
 
     def remove_output(self, output):
@@ -179,6 +183,21 @@ class ManagerBase():
         else:
             return self._output_helper.remove_output(output)
 
+    def add_processor(self, processor):
+        """
+        Adds a processor to the processing queue.
+
+        :param processor: The processor to be added.
+        """
+        self._processor_helper.add_processor(processor)
+
+    def remove_processor(self, processor):
+        """
+        Removes a processor from the processing queue.
+
+        :param processor: The processor to be removed.
+        """
+        self._processor_helper.remove_processor(processor)
 
     def _cast_exception_stack_trace_to_string(self) -> str:
         """
@@ -196,7 +215,7 @@ class ManagerBase():
         Checks if information or debugging logs are enabled.
         :return: True if information or debugging logs are enabled, False otherwise.
         """
-        information_mode = self._log_handler.get_config.get_internal_events.get_information_mode
-        debugging_mode = self._log_handler.get_config.get_internal_events.get_debugging_mode
+        information_mode = self._log_handler.config.internal_events.get_information_mode
+        debugging_mode = self._log_handler.config.internal_events.get_debugging_mode
         return information_mode or debugging_mode
 

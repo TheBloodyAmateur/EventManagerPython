@@ -10,17 +10,17 @@ class ProcessorEntry:
         self.__parameters = parameters if parameters else {}
 
     @property
-    def get_name(self) -> str:
+    def name(self) -> str:
         return self.__name
 
     @property
-    def get_parameters(self) -> dict[str, object]:
+    def parameters(self) -> dict[str, object]:
         return self.__parameters
 
-    @get_name.setter
+    @name.setter
     def set_name(self, name: str):
         self.__name = name
 
-    @get_parameters.setter
+    @parameters.setter
     def set_parameters(self, parameters: dict[str, object]):
         self.__parameters = parameters

@@ -27,7 +27,7 @@ class EventMetaDataBuilder:
         module = inspect.getmodule(frame[0])
 
         # Format the current timestamp
-        time = datetime.now().strftime(log_handler.get_config().event.time_format)
+        time = datetime.now().strftime(log_handler.config().event.time_format)
 
         # Build metadata dictionary
         metadata = {

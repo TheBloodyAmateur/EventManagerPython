@@ -1,3 +1,5 @@
+from EventManager.filehandlers.config.output_entry import OutputEntry
+
 
 class DefaultOutput():
     @staticmethod

@@ -5,8 +5,8 @@ from EventManager.filehandlers.config.helper import atomic_int
 
 
 class ConfigLogRotate(BaseModel):
-    __max_size_in_KB: atomics.atomic = atomic_int(10240)
-    __rotation_period_in_seconds: atomics.atomic = atomic_int(86400)
+    __max_size_in_KB: atomics.atomic = 10240
+    __rotation_period_in_seconds: atomics.atomic = 86400
     __compression_format: str = "gzip"
 
     @property

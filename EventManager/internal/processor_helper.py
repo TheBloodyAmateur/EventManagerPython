@@ -1,13 +1,13 @@
-from EventManager.filehandlers.log_handler import LogHandler
 from EventManager.processors import Processor, MaskIPV4Address, EnrichingProcessor, RegexProcessor, FilterProcessor, \
     SampleProcessor
 
 
+
 class ProcessorHelper():
     __processors: list
-    __log_handler: LogHandler
+    __log_handler = None
 
-    def __init__(self, log_handler: LogHandler):
+    def __init__(self, log_handler):
         """
         Initializes the ProcessorHelper with a LogHandler.
 
@@ -80,7 +80,7 @@ class ProcessorHelper():
         """
         return any(p.__class__ == processor.__class__ for p in processors)
 
-    def process_event(self, event: str, processors, log_handler:LogHandler):
+    def process_event(self, event: str, processors, log_handler):
         """
         Processes an event by passing it through all registered processors.
 
@@ -90,7 +90,7 @@ class ProcessorHelper():
         :return: The processed event.
         """
         for processor in processors:
-            event_format = log_handler.get_config.get_event.get_event_format
+            event_format = log_handler.config.event.get_event_format
             if event_format == "kv":
                 event = processor.process_kv(event)
             elif event_format == "xml":
@@ -104,8 +104,8 @@ class ProcessorHelper():
         Initializes the processors by creating instances based on the configuration.
         :return:
         """
-        for entry in self.__log_handler.get_config.get_processors:
-            processor = self.__create_processor_instance(entry.get_name, entry.get_parameters)
+        for entry in self.__log_handler.config.processors():
+            processor = self.__create_processor_instance(entry.name, entry.parameters)
             if processor and not self.__is_processor_already_registered(processor):
                 self.__processors.append(processor)
 
@@ -118,7 +118,7 @@ class ProcessorHelper():
         if not processor_entry:
             return False
 
-        processor = self.__create_processor_instance(processor_entry.get_name(), processor_entry.get_parameters())
+        processor = self.__create_processor_instance(processor_entry.name(), processor_entry.parameters())
         if processor and not self.__is_processor_already_registered(processor):
             self.__processors.append(processor)
             return True
@@ -147,7 +147,7 @@ class ProcessorHelper():
         if not processor_entry:
             return False
         for processor in self.__processors:
-            output_instance = self.__get_processor(processor_entry.get_parameters(), processor.__class__)
+            output_instance = self.__get_processor(processor_entry.parameters(), processor.__class__)
             if processor.__class__ == output_instance.__class__:
                 self.__processors.remove(processor)
                 return True

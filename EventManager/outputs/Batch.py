@@ -1,10 +1,10 @@
 class Batch:
-    def __init__(self, max_size):
+    def __init__(self, max_size:int = 65536):
         self.max_size = max_size
         self.events = []
         self.current_size = 0
 
-    def try_add(self, event):
+    def try_add(self, event:str):
         event_size = len(event.encode('utf-8'))
         if self.current_size + event_size > self.max_size:
             return False

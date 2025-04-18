@@ -260,7 +260,7 @@ class EventCreator:
         self._append_separator()
         return self
 
-    def create_event(self) -> str:
+    def create(self) -> str:
         """
         Creates the event log.
 

@@ -25,26 +25,26 @@ class Config(BaseModel):
     __log_file: ConfigLogFile = ConfigLogFile()
     __log_rotate_config: ConfigLogRotate = ConfigLogRotate()
     __internal_events: ConfigInternalEvents = ConfigInternalEvents()
-    __processors: list[ProcessorEntry] = PrivateAttr(default_factory=default_processors())
-    __outputs: list[OutputEntry] = PrivateAttr(default_factory=default_outputs())
+    __processors: list[ProcessorEntry] = default_processors
+    __outputs: list[OutputEntry] = default_outputs
 
     @property
-    def get_event(self) -> ConfigEvent:
+    def event(self) -> ConfigEvent:
         return self.__event
 
     @property
-    def get_log_file(self) -> ConfigLogFile:
+    def log_file(self) -> ConfigLogFile:
         return self.__log_file
 
     @property
-    def get_log_rotate_confi(self) -> ConfigLogRotate:
+    def log_rotate_config(self) -> ConfigLogRotate:
         return self.__log_rotate_config
 
     @property
-    def get_internal_events(self) -> ConfigInternalEvents:
+    def internal_events(self) -> ConfigInternalEvents:
         return self.__internal_events
 
     @property
-    def get_processors(self) -> list[ProcessorEntry]:
+    def processors(self) -> list[ProcessorEntry]:
         return self.__processors
 

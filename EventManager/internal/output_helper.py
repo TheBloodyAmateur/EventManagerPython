@@ -1,12 +1,11 @@
 import importlib
 
-from EventManager.filehandlers.config.output_entry import OutputEntry
-from EventManager.filehandlers.log_handler import LogHandler
 from EventManager.outputs.LogOutput import LogOutput
-from EventManager.outputs.Output import Output
 from EventManager.outputs.PrintOutput import PrintOutput
 from EventManager.outputs.SocketOutput import SocketOutput
-
+from EventManager.filehandlers.log_handler import LogHandler
+from EventManager.outputs.Output import Output
+from EventManager.filehandlers.config.output_entry import OutputEntry
 
 class OutputHelper():
     """
@@ -58,8 +57,8 @@ class OutputHelper():
         :return: A list of initialized output instances.
         """
         outputs = []
-        for entry in self.__log_handler.get_config.get_outputs():
-            output_instance = self.__create_output_instance(entry.get_name(), entry.get_parameters())
+        for entry in self.__log_handler.config.get_outputs():
+            output_instance = self.__create_output_instance(entry.name(), entry.parameters())
             if output_instance is not None:
                 outputs.append(output_instance)
         return outputs

@@ -12,12 +12,12 @@ from EventManager.filehandlers.log_handler import LogHandler
 
 class EventManager(ManagerBase):
     """
-    EventManager is a logging module designed to be used in a multi-threaded environment.
+    EventManager is a logging module designed to be used in a multithreaded environment.
     It allows for the registration of events and the ability to trigger those events with
     associated data.
     """
 
-    __internalEventManager: InternalEventManager
+    __internal_event_manager: InternalEventManager
     """
     An instance of InternalEventManager that handles the internal event management.
     """
@@ -33,8 +33,6 @@ class EventManager(ManagerBase):
             super().__init__(log_handler)
         elif config_path is not None:
             super().__init__(config_path)
-        else:
-            raise ValueError("Either log_handler or config_path must be provided.")
 
         self.__internal_event_manager = self._log_handler.internal_event_manager
         self.__internal_event_manager.log_info("EventManager started successfully.")

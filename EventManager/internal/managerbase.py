@@ -1,11 +1,11 @@
 import queue
 import threading
+from typing import TYPE_CHECKING
 
 from EventManager.filehandlers.config.output_entry import OutputEntry
 from EventManager.formatters.event_formatter import EventFormatter
 from EventManager.internal.event_metadata_builder import EventMetaDataBuilder
 from EventManager.internal.processor_helper import ProcessorHelper
-from typing import TYPE_CHECKING
 from EventManager.internal.thread_helper import ThreadHelper
 
 if TYPE_CHECKING:
@@ -13,12 +13,6 @@ if TYPE_CHECKING:
 
 
 class ManagerBase:
-    _log_handler = None
-    _processor_helper: 'ProcessorHelper'
-    _output_helper: 'OutputHelper'
-    _event_queue: queue = queue.Queue()
-    _processing_queue: queue = queue.Queue()
-    _thread_helper: 'ThreadHelper' = ThreadHelper()
 
     def __init__(self, log_handler = None, config_path: str = None):
         """
@@ -31,15 +25,26 @@ class ManagerBase:
         from EventManager.filehandlers.log_handler import LogHandler
         from EventManager.internal.output_helper import OutputHelper
 
+        self._processor_helper: 'ProcessorHelper'
+        self._output_helper: 'OutputHelper'
+        self._event_queue: queue = queue.Queue()
+        self._processing_queue: queue = queue.Queue()
+        self._thread_helper: 'ThreadHelper' = ThreadHelper()
+
         if log_handler:
-            self._log_handler = log_handler
+            self._log_handler: 'LogHandler' = log_handler
         elif config_path:
-            self._log_handler = LogHandler(config_path)
-        else:
-            raise ValueError("Either log_handler or config_path must be provided.")
+            self._log_handler: 'LogHandler' = LogHandler(config_path)
 
         self._processor_helper = ProcessorHelper(self._log_handler)
         self._output_helper = OutputHelper(self._log_handler)
+
+    @property
+    def log_handler(self):
+        """
+        Returns the LogHandler instance.
+        """
+        return self._log_handler
 
     def _initiate_threads(self, internal_event_manager=None):
         """
@@ -55,7 +60,7 @@ class ManagerBase:
                 while True:
                     event = self._event_queue.get()
                     if internal_event_manager:
-                        self.output_event(internal_event_manager, event)
+                        self.output_event(event, internal_event_manager)
                     else:
                         self.output_event(event)
             except KeyboardInterrupt:
@@ -69,7 +74,7 @@ class ManagerBase:
         Initializes the processing thread and output destinations.
         """
         self._processor_helper.initialise_processors()
-        self._output_helper.initialise_outputs()
+        self._output_helper.initialise_outputs(self)
 
         def processing_thread():
             try:
@@ -126,11 +131,11 @@ class ManagerBase:
         """
         self._processing_queue.put(event)
 
-    def output_event(self, event):
+    def output_event(self, event:str, internal_event_manager=None):
         """
         Passes the event to the output destinations.
         """
-        self._output_helper.output_event(event)
+        self._output_helper.output_event(event, internal_event_manager)
 
     def log_message(self, level: str, *messages):
         """
@@ -169,6 +174,11 @@ class ManagerBase:
         self.write_event_to_processing_queue(event)
 
     def add_output(self, output_entry: 'OutputEntry') -> bool:
+        """
+        Adds a new output destination based on the provided OutputEntry.
+        :param output_entry: The OutputEntry instance containing the output configuration.
+        :return: True if the output was added successfully, False otherwise.
+        """
         return self._output_helper.add_output(output_entry)
 
     def remove_output(self, output):

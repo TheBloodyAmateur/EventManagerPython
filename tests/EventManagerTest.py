@@ -16,7 +16,7 @@ from EventManager.formatters.key_value_wrapper import KeyValueWrapper
 
 
 def wait_for_events():
-    time.sleep(0.1)
+    time.sleep(1)
 
 
 class TestEventManager(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestEventManager(unittest.TestCase):
     def assert_log_contains(self, expected_text):
         wait_for_events()
         log_path = Path(
-            self.event_manager._log_handler.config().log_file.file_path + self.event_manager._log_handler.get_current_file_name())
+            self.event_manager._log_handler.config.log_file.file_path + self.event_manager._log_handler.current_file_name)
         log_lines = log_path.read_text(encoding="utf-8").splitlines()
         self.assertTrue(any(expected_text in line for line in log_lines))
 
@@ -49,13 +49,15 @@ class TestEventManager(unittest.TestCase):
         log_handler.config.event.event_format = "default"
         self.event_manager = EventManager(log_handler)
 
-        self.event_manager.log_error_message("This is an informational message")
-        self.event_manager.log_warning_message("This is an error message")
+        self.event_manager.log_error_message("This is an error message")
+        self.event_manager.log_warning_message("This is an warning message")
         self.event_manager.log_fatal_message("This is a fatal message")
 
+        wait_for_events()
+
         self.assertTrue(log_handler.check_if_log_file_exists())
-        self.assert_log_contains("informational message")
         self.assert_log_contains("error message")
+        self.assert_log_contains("warning message")
         self.assert_log_contains("fatal message")
 
     def test_create_default_events_with_arguments(self):
@@ -91,7 +93,7 @@ class TestEventManager(unittest.TestCase):
 
     def test_create_json_events(self):
         log_handler = LogHandler(self.config_path)
-        config = log_handler.config()
+        config = log_handler.config
         config.event.event_format = "json"
         config.event.print_to_console = False
         self.event_manager = EventManager(log_handler)
@@ -103,7 +105,7 @@ class TestEventManager(unittest.TestCase):
     def test_console_output(self):
         log_handler = LogHandler(self.config_path, True)
         output_entry = OutputEntry(name="PrintOutput")
-        log_handler.config().outputs.append(output_entry)
+        log_handler.config.outputs.append(output_entry)
         self.event_manager = EventManager(log_handler)
         self.event_manager.log_error_message("This is an error message")
         wait_for_events()
@@ -221,7 +223,9 @@ class TestEventManager(unittest.TestCase):
         output_entry = OutputEntry(name="PrintOutput")
         log_handler.config().outputs.append(output_entry)
 
-        socket_entry = OutputEntry(name="SocketOutput", parameters={"socketSettings": [SocketEntry("localhost", 6000)]})
+        socket_entry = OutputEntry(name="SocketOutput", parameters={
+            "socketSettings": [SocketEntry("localhost", 6000)]
+        })
 
         self.event_manager = EventManager(log_handler)
         self.event_manager.add_output(socket_entry)

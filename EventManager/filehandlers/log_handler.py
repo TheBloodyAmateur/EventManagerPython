@@ -13,6 +13,9 @@ from EventManager.internal_event_manager import InternalEventManager
 
 
 class LogHandler():
+    """
+    The LogHandler class is responsible for managing the logging configuration and log files.
+    """
     __config: Config
     __current_file_name: str
     __current_internal_file_name: str
@@ -27,9 +30,24 @@ class LogHandler():
         return self.__config
 
     @property
-    def internal_event_manager(self) -> "InternalEventManager":
-        return self.__internal_event_manager
+    def current_file_name(self) -> str:
+        return self.__current_file_name
 
+    @current_file_name.setter
+    def current_file_name(self, file_name: str):
+        self.__current_file_name = file_name
+
+    @property
+    def current_internal_file_name(self) -> str:
+        return self.__current_internal_file_name
+
+    @current_internal_file_name.setter
+    def current_internal_file_name(self, file_name: str):
+        self.__current_internal_file_name = file_name
+
+    @property
+    def internal_event_manager(self) -> InternalEventManager:
+        return self.__internal_event_manager
 
     def __set_initial_values(self):
         """
@@ -45,7 +63,8 @@ class LogHandler():
         file_path: str = self.__config.internal_events.file_path
         self.__config.internal_events.file_path = self.__set_correct_file_path(file_path)
 
-    def __set_correct_file_path(self, file_path: str) -> str:
+    @staticmethod
+    def __set_correct_file_path(file_path: str) -> str:
         """
         Sets the correct file path. If the file path does not exist, the default file path is
         used based on the operating system.
@@ -85,7 +104,7 @@ class LogHandler():
                 self.__config = json.load(file)
             self.__initialise_internal_event_manager()
             self.__internal_event_manager.log_info("Config file loaded successfully.")
-        except Exception as e:
+        except IOError as e:
             self.__config = Config()
             self.__initialise_internal_event_manager()
             self.__internal_event_manager.log_error(f"Could not load the config file. Using default values. Error: {str(e)}")
@@ -109,8 +128,8 @@ class LogHandler():
         :param file_extension: The file extension.
         :return: The new file name.
         """
-        current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        return f"{file_name}-{current_time}.{file_extension}"
+        current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S %z")
+        return f"{file_name}-{current_time}{file_extension}"
 
     def check_if_log_file_needs_rotation(self):
         log_file_path = self.config['log_file']['file_path']
@@ -158,8 +177,47 @@ class LogHandler():
         :return: True if the log file exists, False otherwise.
         """
         log_file_path = self.config.log_file.file_path
-        file_name = self.config.log_file.file_name
-        file_extension = self.config.log_file.file_extension
+        file_name = self.current_file_name
 
-        log_file = os.path.join(log_file_path, f"{file_name}{file_extension}")
+        log_file = os.path.join(log_file_path, f"{file_name}")
         return os.path.exists(log_file)
+
+    def check_if_internal_log_file_exists(self) -> bool:
+        """
+        Check if the internal log file exists.
+
+        :return: True if the internal log file exists, False otherwise.
+        """
+        internal_log_file_path = self.config.internal_events.file_path
+        file_name = self.config.internal_events.file_name
+        file_extension = self.config.internal_events.file_extension
+
+        internal_log_file = os.path.join(internal_log_file_path, f"{file_name}{file_extension}")
+        return os.path.exists(internal_log_file)
+
+    def create_log_file(self):
+        """
+        Creates a new log file with the specified file name and file extension.
+        """
+        log_file_path = self.config.log_file.file_path
+        file_name = self.current_file_name
+
+        log_file = os.path.join(log_file_path, f"{file_name}")
+        print("Creating log file:", log_file)
+        with open(log_file, 'w') as file:
+            pass
+
+    def create_internal_log_file(self):
+        """
+        Creates a new internal log file with the specified file name and file extension.
+        """
+        internal_log_file_path = self.config.internal_events.file_path
+        file_name = self.__current_internal_file_name
+        file_extension = self.config.internal_events.file_extension
+
+        internal_log_file = os.path.join(internal_log_file_path, f"{file_name}{file_extension}")
+
+        print("Creating internal log file:", internal_log_file)
+
+        with open(internal_log_file, 'w') as file:
+            pass

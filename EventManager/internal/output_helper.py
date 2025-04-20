@@ -1,8 +1,8 @@
 import importlib
 
-from EventManager.outputs.LogOutput import LogOutput
-from EventManager.outputs.PrintOutput import PrintOutput
-from EventManager.outputs.SocketOutput import SocketOutput
+from EventManager.outputs.logoutput import LogOutput
+from EventManager.outputs.printoutput import PrintOutput
+from EventManager.outputs.socketoutput import SocketOutput
 from EventManager.filehandlers.log_handler import LogHandler
 from EventManager.outputs.Output import Output
 from EventManager.filehandlers.config.output_entry import OutputEntry
@@ -12,20 +12,19 @@ class OutputHelper():
     A helper class to manage output instances for the EventManager.
     """
 
-    _outputs: list = []
-    __log_handler: LogHandler
-
     def __init__(self, log_handler: LogHandler):
         """
         Initializes the OutputHelper with a LogHandler.
 
         :param log_handler: An instance of LogHandler to handle logging.
         """
-        self.__log_handler = log_handler
+        self.__outputs: list = []
+        self.__log_handler: LogHandler = log_handler
 
     def __create_output_instance(self, class_name: str, parameters: dict = None) -> Output:
         try:
             package_prefix = "EventManager.outputs"
+            test = f"{package_prefix}.{class_name.lower()}"
             module = importlib.import_module(f"{package_prefix}.{class_name.lower()}")
             clazz = getattr(module, class_name)
 
@@ -38,6 +37,12 @@ class OutputHelper():
             return None
 
     def get_output(self, parameters: dict, clazz) -> Output:
+        """
+        Creates an output instance based on the provided class name and parameters.
+        :param parameters: The parameters for the output instance.
+        :param clazz: The class of the output instance to create.
+        :return: An instance of the output class or None if the class is not recognized.
+        """
         if parameters is None:
             return None
 
@@ -51,18 +56,6 @@ class OutputHelper():
 
         return None
 
-    def initialise_outputs(self) -> list:
-        """
-        Initializes the outputs based on the configuration provided in the LogHandler.
-        :return: A list of initialized output instances.
-        """
-        outputs = []
-        for entry in self.__log_handler.config.get_outputs():
-            output_instance = self.__create_output_instance(entry.name, entry.parameters)
-            if output_instance is not None:
-                outputs.append(output_instance)
-        return outputs
-
     def output_event(self, event: str, internal_event_manager=None):
         """
         Outputs the event to all output destinations.
@@ -72,23 +65,37 @@ class OutputHelper():
                                        Defaults to self._log_handler if not provided.
         """
         context = internal_event_manager or self.__log_handler
-        for output in self._outputs:
+        for output in self.__outputs:
             output.write(context, event)
 
-    def __is_output_already_registered(self, output, outputs):
-        return any(type(p) == type(output) for p in outputs)
+    def __is_output_already_registered(self, output):
+        """
+        Checks if the output is already registered in the list of outputs.
+        :param output: The output instance to check.
+        :return: True if the output is already registered, False otherwise.
+        """
+        return any(isinstance(p, output) for p in self.__outputs)
 
-    def add_new_output(self, output_entry):
+    def __add_new_output(self, output_entry):
+        """
+        Adds a new output destination based on the provided OutputEntry.
+        :param output_entry: The OutputEntry instance containing the output configuration.
+        """
         if output_entry is None:
             return
-        output_instance = self.__create_output_instance(output_entry.get_name(), output_entry.get_parameters())
+        output_instance = self.__create_output_instance(output_entry.name, output_entry.get_parameters())
         if output_instance is not None and not self.__is_output_already_registered(output_instance):
-            self._outputs.append(output_instance)
+            self.__outputs.append(output_instance)
 
-    def add_output(self, output_entry):
+    def add_output(self, output_entry) -> bool:
+        """
+        Adds a new output destination based on the provided OutputEntry.
+        :param output_entry: The OutputEntry instance containing the output configuration.
+        :return:
+        """
         if output_entry is None:
             return False
-        self.add_new_output(output_entry)
+        self.__add_new_output(output_entry)
         return True
 
     def remove_output(self, output):
@@ -102,16 +109,27 @@ class OutputHelper():
             return False
 
         if isinstance(output, str):
-            for existing_output in self._outputs:
+            for existing_output in self.__outputs:
                 if existing_output.__class__.__name__.lower() == output.lower():
-                    self._outputs.remove(existing_output)
+                    self.__outputs.remove(existing_output)
                     return True
 
         elif isinstance(output, OutputEntry):
-            instance = self.__create_output_instance(output.get_name, output.get_parameters)
-            for existing_output in self._outputs:
+            instance = self.__create_output_instance(output.name, output.parameters)
+            for existing_output in self.__outputs:
                 if type(existing_output) is type(instance):
-                    self._outputs.remove(existing_output)
+                    self.__outputs.remove(existing_output)
                     return True
 
         return False
+
+    def initialise_outputs(self, obj):
+        """
+        Initializes the outputs based on the configuration provided in the LogHandler.
+        :return: A list of initialized output instances.
+        """
+        print("Class which called the initialise_outputs:", obj.__class__.__name__)
+        for entry in self.__log_handler.config.get_outputs():
+            output_instance = self.__create_output_instance(entry.name, entry.parameters)
+            if output_instance is not None:
+                self.__outputs.append(output_instance)

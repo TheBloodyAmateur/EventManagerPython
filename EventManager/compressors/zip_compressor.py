@@ -4,7 +4,10 @@ from pathlib import Path
 from EventManager.compressors.compressors import Compressors
 
 
-class Zip(Compressors):
+class ZipCompressor(Compressors):
+    """
+    A class for compressing files using the ZIP format.
+    """
     @staticmethod
     def compress(file_path: str):
         try:

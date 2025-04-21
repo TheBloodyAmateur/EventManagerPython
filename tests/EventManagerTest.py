@@ -19,7 +19,7 @@ def wait_for_events():
     """
     A simple function to wait for events to be processed, in order to prevent timeouts due to asynchronous processing.
     """
-    time.sleep(3)
+    time.sleep(0.1)
 
 
 class TestEventManager(unittest.TestCase):
@@ -217,7 +217,7 @@ class TestEventManager(unittest.TestCase):
         self.event_manager.log_error_message("This is a test_message")
         self.event_manager.log_error_message("This is a message without the term")
 
-        time.sleep(10)
+        wait_for_events()
 
         output = self.output_buffer.getvalue()
         self.assertIn("This is a message without the term", output)

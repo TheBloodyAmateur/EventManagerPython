@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="EventManagerPy",
-    version="0.2.2",
+    version="0.2.3",
     author="Botan Celik",
     author_email="botan.celik@icloud.com",
     description="EventManager is a logging module designed to be used in a multi-threaded environment",

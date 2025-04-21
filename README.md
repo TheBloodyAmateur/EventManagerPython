@@ -1,13 +1,18 @@
-# EventManager
-The EventManager is a library designed to quickly create informative events and log files for your Python application.
-It provides a simple interface to log events, errors, and warnings, and can be easily integrated into any Python 
-application. The library is designed to be lightweight and easy to use, making it a great choice for developers who 
-want to add logging functionality to their applications without a lot of overhead.
+# EventManagerPy
+
+EventManagerPy is a logging module designed to be used in a multi-threaded environment. It provides a robust and extensible framework for managing events, processing data, and formatting outputs.
 
 ## Features
-- Simple and easy-to-use interface
-- Supports logging events, errors, and warnings
-- No additional configuration required to use it
-- A wide variety of configurable options such as configuring log related parameters, setting up custom log destinations,
-processing options and more
 
+- **Multi-threaded Support**: Designed to work seamlessly in multi-threaded environments.
+- **Customizable Formatters**: Includes support for JSON, XML, and text formatting.
+- **Compressors**: Built-in support for compressing logs using ZIP and TAR formats.
+- **Extensibility**: Easily extendable with custom processors, formatters, and output handlers.
+- **Lightweight**: Minimal dependencies for easy integration.
+
+## Installation
+
+You can install EventManagerPy using pip:
+
+```bash
+pip install EventManagerPy

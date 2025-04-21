@@ -9,7 +9,6 @@ from pathlib import Path
 import urllib3.util
 
 from EventManager.filehandlers.config.config import Config
-from EventManager.internal_event_manager import InternalEventManager
 
 
 class LogHandler():
@@ -19,7 +18,7 @@ class LogHandler():
     __config: Config
     __current_file_name: str
     __current_internal_file_name: str
-    __internal_event_manager: InternalEventManager
+    __internal_event_manager = None
 
     def __init__(self, config_path:str):
         self.__load_config_file(config_path)
@@ -46,7 +45,7 @@ class LogHandler():
         self.__current_internal_file_name = file_name
 
     @property
-    def internal_event_manager(self) -> InternalEventManager:
+    def internal_event_manager(self):
         return self.__internal_event_manager
 
     def __set_initial_values(self):
@@ -115,6 +114,8 @@ class LogHandler():
         the internal event manager will print to console. Otherwise, it will create a new file
         with the specified file name and file extension.
         """
+        from EventManager.internal_event_manager import InternalEventManager
+
         file_name = self.__config.internal_events.file_name
         file_extension = self.__config.internal_events.file_extension
         self.__current_internal_file_name = self.__create_new_file_name(file_name,file_extension)

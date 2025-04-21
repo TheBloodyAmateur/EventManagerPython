@@ -7,9 +7,9 @@ from datetime import datetime
 from pathlib import Path
 
 import urllib3.util
+from typing import TYPE_CHECKING
 
 from EventManager.filehandlers.config.config import Config
-
 
 class LogHandler():
     """

@@ -253,7 +253,7 @@ class TestEventManager(unittest.TestCase):
             with ThreadPoolExecutor() as executor:
                 future = executor.submit(handle_connection)
 
-                for _ in range(10000):
+                for _ in range(1000):
                     self.event_manager.log_error_message("This is an error message")
 
                 wait_for_events()

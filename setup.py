@@ -16,5 +16,11 @@ setup(
         "Operating System :: OS Independent",
     ],
     python_requires=">=3.6",
-    install_requires=open("requirements.txt", encoding="utf-8").read(),
+    install_requires=[
+        "setuptools~=78.1.0",
+        "psutil~=7.0.0",
+        "pydantic~=2.11.3",
+        "atomics~=1.0.3",
+        "urllib3~=2.4.0",
+    ],
 )

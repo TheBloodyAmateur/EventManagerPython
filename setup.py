@@ -8,7 +8,7 @@ setup(
     description="EventManager is a logging module designed to be used in a multi-threaded environment",
     long_description=open("README.md", encoding='utf-8').read(),
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/my_module",
+    url="https://github.com/TheBloodyAmateur/EventManagerPython",
     packages=find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",

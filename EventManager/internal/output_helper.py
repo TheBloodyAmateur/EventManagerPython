@@ -73,7 +73,10 @@ class OutputHelper():
         :param output: The output instance to check.
         :return: True if the output is already registered, False otherwise.
         """
-        return any(isinstance(p, output) for p in self.__outputs)
+        for existing_output in self.__outputs:
+            if type(existing_output) is type(output):
+                return True
+        return False
 
     def __add_new_output(self, output_entry):
         """
@@ -82,7 +85,7 @@ class OutputHelper():
         """
         if output_entry is None:
             return
-        output_instance = self.__create_output_instance(output_entry.name, output_entry.get_parameters())
+        output_instance = self.__create_output_instance(output_entry.name, output_entry.parameters)
         if output_instance is not None and not self.__is_output_already_registered(output_instance):
             self.__outputs.append(output_instance)
 

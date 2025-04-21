@@ -3,6 +3,7 @@ import threading
 from typing import TYPE_CHECKING
 
 from EventManager.filehandlers.config.output_entry import OutputEntry
+from EventManager.filehandlers.config.processor_entry import ProcessorEntry
 from EventManager.formatters.event_formatter import EventFormatter
 from EventManager.internal.event_metadata_builder import EventMetaDataBuilder
 from EventManager.internal.processor_helper import ProcessorHelper
@@ -200,12 +201,14 @@ class ManagerBase:
         """
         self._processor_helper.add_processor(processor)
 
-    def remove_processor(self, processor):
+    def remove_processor(self, processor: ProcessorEntry = None, processor_name: str = None):
         """
         Removes a processor from the processing queue.
 
         :param processor: The processor to be removed.
+        :param processor_name: The name of the processor to be removed.
         """
+        processor = processor or processor_name
         self._processor_helper.remove_processor(processor)
 
     def _cast_exception_stack_trace_to_string(self) -> str:

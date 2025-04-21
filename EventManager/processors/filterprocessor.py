@@ -27,6 +27,7 @@ class FilterProcessor(Processor):
 
     def __get_event(self, event: str) -> str:
         for term in self.__termToFilter:
+            print(f"term to filter: {term}, event: {event}, event contains term: {term in event}")
             if term not in event:
                 return event
         return ""

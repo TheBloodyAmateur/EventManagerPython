@@ -1,10 +1,17 @@
-from EventManager.processors import Processor, MaskIPV4Address, EnrichingProcessor, RegexProcessor, FilterProcessor, \
-    SampleProcessor
+import importlib
+from typing import Union
 
+from EventManager.filehandlers.config.processor_entry import ProcessorEntry
+from EventManager.processors import Processor
+from EventManager.processors.enrichingprocessor import EnrichingProcessor
+from EventManager.processors.filterprocessor import FilterProcessor
+from EventManager.processors.maskipv4address import MaskIPV4Address
+from EventManager.processors.maskpasswords import MaskPasswords
+from EventManager.processors.regexprocessor import RegexProcessor
+from EventManager.processors.sampleprocessor import SampleProcessor
 
 
 class ProcessorHelper():
-    _processors: list = []
     __log_handler = None
 
     def __init__(self, log_handler):
@@ -14,6 +21,7 @@ class ProcessorHelper():
         :param log_handler: An instance of LogHandler to handle logging.
         """
         self.__log_handler = log_handler
+        self._processors = []
 
     def __create_processor_instance(self, class_name: str, parameters: dict = None) -> Processor:
         """
@@ -24,12 +32,8 @@ class ProcessorHelper():
         :return: An instance of the specified processor class.
         """
         try:
-            package_prefix = "com.github.eventmanager.processors."
-            full_class_name = package_prefix + class_name
-
-            # Dynamically import the module and class
-            module_name, class_name = full_class_name.rsplit('.', 1)
-            module = __import__(module_name, fromlist=[class_name])
+            package_prefix = "EventManager.processors"
+            module = importlib.import_module(f"{package_prefix}.{class_name.lower()}")
             clazz = getattr(module, class_name)
 
             exclude_ranges = self.__get_processor(parameters, clazz)
@@ -38,6 +42,7 @@ class ProcessorHelper():
 
             return clazz()  # Instantiate the class
         except Exception as e:
+            print(f"Error creating processor instance: {e}")
             return None
 
     def __get_processor(self, parameters: dict, clazz) -> Processor:
@@ -48,8 +53,6 @@ class ProcessorHelper():
         :param clazz: The class of the processor to instantiate.
         :return: An instance of the specified processor class.
         """
-        if parameters is None:
-            return None
         try:
             if clazz == MaskIPV4Address:
                 exclude_ranges = parameters.get("excludeRanges", [])
@@ -66,19 +69,20 @@ class ProcessorHelper():
             elif clazz == SampleProcessor:
                 sample_size = parameters.get("sampleSize", 0)
                 return SampleProcessor(sample_size)
+            elif clazz == MaskPasswords:
+                return MaskPasswords()
         except (TypeError, KeyError):
             return None
         return None
 
-    def __is_processor_already_registered(self, processor, processors):
+    def __is_processor_already_registered(self, processor):
         """
         Checks if a Processor is already registered.
 
         :param processor: The processor to check.
-        :param processors: The list of registered processors.
         :return: True if the processor is already registered, False otherwise.
         """
-        return any(p.__class__ == processor.__class__ for p in processors)
+        return any(p.__class__ == processor.__class__ for p in self._processors)
 
     def process_event(self, event: str):
         """
@@ -106,7 +110,7 @@ class ProcessorHelper():
         for entry in test:
             processor = self.__create_processor_instance(entry.name, entry.parameters)
             if processor and not self.__is_processor_already_registered(processor):
-                self.__processors.append(processor)
+                self._processors.append(processor)
 
     def add_processor(self, processor_entry):
         """
@@ -117,9 +121,9 @@ class ProcessorHelper():
         if not processor_entry:
             return False
 
-        processor = self.__create_processor_instance(processor_entry.name(), processor_entry.parameters())
+        processor = self.__create_processor_instance(processor_entry.name, processor_entry.parameters)
         if processor and not self.__is_processor_already_registered(processor):
-            self.__processors.append(processor)
+            self._processors.append(processor)
             return True
         return False
 
@@ -131,23 +135,27 @@ class ProcessorHelper():
         """
         if not processor_name:
             return False
-        for processor in self.__processors:
+        for processor in self._processors:
             if processor.__class__.__name__.lower() == processor_name.lower():
-                self.__processors.remove(processor)
+                self._processors.remove(processor)
                 return True
         return False
 
-    def remove_processor(self, processor_entry):
-        """
-        Removes a processor from the list of registered processors based on its entry.
-        :param processor_entry: The processor entry to remove.
-        :return: True if the processor was removed, False otherwise.
-        """
-        if not processor_entry:
+    def remove_processor(self, identifier: Union[str, 'ProcessorEntry']) -> bool:
+        if identifier is None:
             return False
-        for processor in self.__processors:
-            output_instance = self.__get_processor(processor_entry.parameters(), processor.__class__)
-            if processor.__class__ == output_instance.__class__:
-                self.__processors.remove(processor)
-                return True
+
+        if isinstance(identifier, str):
+            for processor in self._processors:
+                if processor.__class__.__name__.lower() == identifier.lower():
+                    self._processors.remove(processor)
+                    return True
+
+        elif hasattr(identifier, 'getParameters'):
+            for processor in self._processors:
+                output_instance = self.__get_processor(identifier.getParameters(), processor.__class__)
+                if processor.__class__ == output_instance.__class__:
+                    self._processors.remove(processor)
+                    return True
+
         return False

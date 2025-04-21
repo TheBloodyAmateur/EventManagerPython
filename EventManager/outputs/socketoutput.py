@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 class SocketOutput(Output):
 
     __socket_settings: list
-    __batch: Batch = Batch
+    __batch: Batch = None
 
     def __init__(self, socket_settings: list):
         """
@@ -20,21 +20,22 @@ class SocketOutput(Output):
         :param socket_settings: The settings for the socket output.
         """
         self.__socket_settings = socket_settings
+        self.__batch = Batch.Batch(max_size=65536)
 
     def write(self, loghandler: "LogHandler", event: str):
-        if not self.__batch.Batch.try_add(event):
-            self.send_to_socket("\n".join(self.__batch.Batch.get_batch()))
-            self.__batch.Batch.clear_batch()
-            self.__batch.Batch.try_add(event)
+        if not self.__batch.try_add(event=event):
+            self.send_to_socket("\n".join(self.__batch.get_batch()))
+            self.__batch.clear_batch()
+            self.__batch.try_add(event)
 
     def write(self, internal_event_manager: "InternalEventManager", event: str):
-        if not self.__batch.Batch.try_add(event):
-            bytes_size = self.__batch.Batch.get_current_size_in_bytes()
-            size = len(self.__batch.Batch.get_batch())
+        if not self.__batch.try_add(event=event):
+            bytes_size = self.__batch.get_current_size_in_bytes()
+            size = len(self.__batch.get_batch())
             internal_event_manager.log_info(f"Sending {size} events to socket. Total size: {bytes_size} bytes.")
             self.send_to_socket_with_manager(internal_event_manager, "\n".join(self.__batch.get_batch()))
-            self.__batch.Batch.clear_batch()
-            self.__batch.Batch.try_add(event)
+            self.__batch.clear_batch()
+            self.__batch.try_add(event=event)
 
     def send_to_socket(self, event):
         for socket_entry in self.__socket_settings:
@@ -47,7 +48,7 @@ class SocketOutput(Output):
     def send_to_socket_with_manager(self, internal_event_manager, event):
         for socket_entry in self.__socket_settings:
             try:
-                with socket.create_connection((socket_entry['host'], socket_entry['port'])) as sock:
+                with socket.create_connection((socket_entry.host, socket_entry.port)) as sock:
                     sock.sendall(event.encode('utf-8'))
             except Exception as e:
                 internal_event_manager.log_error(f"An error occurred in send_to_socket: {e}")

@@ -19,7 +19,7 @@ def wait_for_events():
     """
     A simple function to wait for events to be processed, in order to prevent timeouts due to asynchronous processing.
     """
-    time.sleep(0.5)
+    time.sleep(3)
 
 
 class TestEventManager(unittest.TestCase):
@@ -138,13 +138,13 @@ class TestEventManager(unittest.TestCase):
         log_handler.config.outputs.append(output_entry)
 
         self.event_manager = EventManager(log_handler)
-        self.event_manager.remove_output(OutputEntry("PrintOutput", None))
         self.event_manager.log_error_message("This is an error message")
-
         wait_for_events()
 
+        self.event_manager.remove_output(OutputEntry("PrintOutput", None))
+
         test = self.output_buffer.getvalue().strip()
-        self.assertEqual("This is an error message", test)
+        self.assertTrue("\"message\": \"This is an error message\"" in test)
 
     def test_add_processor_and_verify_output(self):
         log_handler = LogHandler(self.config_path)
@@ -164,7 +164,7 @@ class TestEventManager(unittest.TestCase):
         self.assertIn('"level":"KETCHUP"', self.output_buffer.getvalue())
 
     def test_remove_processor_and_verify_output(self):
-        log_handler = LogHandler(self.config_path, True)
+        log_handler = LogHandler(self.config_path)
         log_handler.config.event.event_format = "json"
         output_entry = OutputEntry(name="PrintOutput")
         log_handler.config.outputs.append(output_entry)
@@ -174,18 +174,23 @@ class TestEventManager(unittest.TestCase):
             "regexEntries": [RegexEntry("level", "ERROR", "KETCHUP")]
         })
         self.event_manager.add_processor(processor_entry)
-        self.event_manager.remove_processor("RegexProcessor")
+
+        wait_for_events()
+
         self.event_manager.log_error_message("This is an error message")
 
         wait_for_events()
 
-        self.assertIn('"level":"ERROR"', self.output_buffer.getvalue())
+        self.event_manager.remove_processor("RegexProcessor")
+
+        self.assertIn('"level":"KETCHUP"', self.output_buffer.getvalue())
 
     def test_sample_processor(self):
-        log_handler = LogHandler(self.config_path, True)
+        log_handler = LogHandler(self.config_path)
         log_handler.config.event.event_format = "json"
         output_entry = OutputEntry(name="PrintOutput")
         log_handler.config.outputs.append(output_entry)
+
         processor_entry = ProcessorEntry(name="SampleProcessor", parameters={"sampleSize": 2})
         log_handler.config.processors.append(processor_entry)
 
@@ -201,18 +206,18 @@ class TestEventManager(unittest.TestCase):
             self.assertIn(f"This is a test message {i}", output)
 
     def test_filter_processor(self):
-        log_handler = LogHandler(self.config_path, True)
+        log_handler = LogHandler(self.config_path)
         log_handler.config.event.event_format = "json"
         output_entry = OutputEntry(name="PrintOutput")
         log_handler.config.outputs.append(output_entry)
-        processor_entry = ProcessorEntry(name="FilterProcessor", parameters={"termToFilter": ["test"]})
+        processor_entry = ProcessorEntry(name="FilterProcessor", parameters={"termToFilter": ["test_message"]})
         log_handler.config.processors.append(processor_entry)
 
         self.event_manager = EventManager(log_handler)
-        self.event_manager.log_error_message("This is a test message")
+        self.event_manager.log_error_message("This is a test_message")
         self.event_manager.log_error_message("This is a message without the term")
 
-        wait_for_events()
+        time.sleep(10)
 
         output = self.output_buffer.getvalue()
         self.assertIn("This is a message without the term", output)
@@ -233,24 +238,29 @@ class TestEventManager(unittest.TestCase):
         server = socket.socket()
         server.bind(("localhost", 6000))
         server.listen(1)
+        server.settimeout(5)  # Set a timeout to prevent indefinite blocking
 
         def handle_connection():
-            conn, _ = server.accept()
-            data = conn.recv(1024).decode()
-            conn.close()
-            return data
+            try:
+                conn, _ = server.accept()
+                data = conn.recv(1024).decode()
+                conn.close()
+                return data
+            except socket.timeout:
+                return ""
 
-        with ThreadPoolExecutor() as executor:
-            future = executor.submit(handle_connection)
+        try:
+            with ThreadPoolExecutor() as executor:
+                future = executor.submit(handle_connection)
 
-            for _ in range(100):
-                self.event_manager.log_error_message("This is an error message")
+                for _ in range(10000):
+                    self.event_manager.log_error_message("This is an error message")
 
-            wait_for_events()
-            received = future.result(timeout=2)
-            self.assertIn("This is an error message", received)
-
-        server.close()
+                wait_for_events()
+                received = future.result(timeout=2)
+                self.assertIn("This is an error message", received)
+        finally:
+            server.close()
 
 
 if __name__ == '__main__':

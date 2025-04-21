@@ -16,7 +16,10 @@ from EventManager.formatters.key_value_wrapper import KeyValueWrapper
 
 
 def wait_for_events():
-    time.sleep(1)
+    """
+    A simple function to wait for events to be processed, in order to prevent timeouts due to asynchronous processing.
+    """
+    time.sleep(0.5)
 
 
 class TestEventManager(unittest.TestCase):
@@ -62,9 +65,7 @@ class TestEventManager(unittest.TestCase):
 
     def test_create_default_events_with_arguments(self):
         log_handler = LogHandler(self.config_path)
-        config = log_handler.config()
-        config.event.event_format = "default"
-        config.event.print_to_console = False
+        log_handler.config.event.event_format = "default"
         self.event_manager = EventManager(log_handler)
 
         self.event_manager.log_warning_message(
@@ -72,15 +73,15 @@ class TestEventManager(unittest.TestCase):
             KeyValueWrapper("detlef", "herzig")
         )
 
+        wait_for_events()
+
         self.assertTrue(log_handler.check_if_log_file_exists())
         self.assert_log_contains("gisela=\"brünhilde\"")
         self.assert_log_contains("detlef=\"herzig\"")
 
     def test_create_kv_events(self):
         log_handler = LogHandler(self.config_path)
-        config = log_handler.config()
-        config.event.event_format = "kv"
-        config.event.print_to_console = False
+        log_handler.config.event.event_format = "kv"
         self.event_manager = EventManager(log_handler)
 
         self.event_manager.log_error_message(
@@ -88,105 +89,105 @@ class TestEventManager(unittest.TestCase):
             KeyValueWrapper("value", "key")
         )
 
+        wait_for_events()
+
         self.assertTrue(log_handler.check_if_log_file_exists())
         self.assert_log_contains("key=\"value\"")
 
     def test_create_json_events(self):
         log_handler = LogHandler(self.config_path)
-        config = log_handler.config
-        config.event.event_format = "json"
-        config.event.print_to_console = False
-        self.event_manager = EventManager(log_handler)
+        log_handler.config.event.event_format = "json"
 
+        self.event_manager = EventManager(log_handler)
         self.event_manager.log_error_message("test1")
+
+        wait_for_events()
+
         self.assertTrue(log_handler.check_if_log_file_exists())
-        self.assert_log_contains('"message":"test1"')
+        self.assert_log_contains('"message": "test1"')
 
     def test_console_output(self):
-        log_handler = LogHandler(self.config_path, True)
+        log_handler = LogHandler(self.config_path)
         output_entry = OutputEntry(name="PrintOutput")
         log_handler.config.outputs.append(output_entry)
+
         self.event_manager = EventManager(log_handler)
         self.event_manager.log_error_message("This is an error message")
+
         wait_for_events()
+
         self.assertIn("This is an error message", self.output_buffer.getvalue())
 
     def test_monitor(self):
-        log_handler = LogHandler(self.config_path, True)
-        config = log_handler.config
-        config.event.event_format = "json"
+        log_handler = LogHandler(self.config_path)
+        log_handler.config.event.event_format = "json"
         output_entry = OutputEntry(name="PrintOutput")
-        config.outputs.append(output_entry)
-        self.event_manager = EventManager(log_handler)
+        log_handler.config.outputs.append(output_entry)
 
+        self.event_manager = EventManager(log_handler)
         self.event_manager.monitor("test", 100, lambda: time.sleep(0.2))
+
         wait_for_events()
+
         self.assertIn("Operation test took", self.output_buffer.getvalue())
 
     def test_add_and_remove_output(self):
         log_handler = LogHandler(self.config_path)
-        config = log_handler.config
-        config.event.event_format = "json"
-
+        log_handler.config.event.event_format = "json"
         output_entry = OutputEntry(name="PrintOutput")
-        config.outputs.append(output_entry)
+        log_handler.config.outputs.append(output_entry)
 
         self.event_manager = EventManager(log_handler)
         self.event_manager.remove_output(OutputEntry("PrintOutput", None))
         self.event_manager.log_error_message("This is an error message")
+
         wait_for_events()
+
         test = self.output_buffer.getvalue().strip()
         self.assertEqual("This is an error message", test)
 
     def test_add_processor_and_verify_output(self):
-        log_handler = LogHandler(self.config_path, True)
-        config = log_handler.config
-        config.event.event_format = "json"
-
+        log_handler = LogHandler(self.config_path)
+        log_handler.config.event.event_format = "json"
         output_entry = OutputEntry(name="PrintOutput")
-        config.outputs.append(output_entry)
+        log_handler.config.outputs.append(output_entry)
 
         self.event_manager = EventManager(log_handler)
-
         processor_entry = ProcessorEntry(name="RegexProcessor", parameters={
             "regexEntries": [RegexEntry("level", "ERROR", "KETCHUP")]
         })
-
         self.event_manager.add_processor(processor_entry)
         self.event_manager.log_error_message("This is an error message")
+
         wait_for_events()
+
         self.assertIn('"level":"KETCHUP"', self.output_buffer.getvalue())
 
     def test_remove_processor_and_verify_output(self):
         log_handler = LogHandler(self.config_path, True)
-        config = log_handler.config()
-        config.event.event_format = "json"
-
+        log_handler.config.event.event_format = "json"
         output_entry = OutputEntry(name="PrintOutput")
-        config.outputs.append(output_entry)
+        log_handler.config.outputs.append(output_entry)
 
         self.event_manager = EventManager(log_handler)
-
         processor_entry = ProcessorEntry(name="RegexProcessor", parameters={
             "regexEntries": [RegexEntry("level", "ERROR", "KETCHUP")]
         })
-
         self.event_manager.add_processor(processor_entry)
         self.event_manager.remove_processor("RegexProcessor")
         self.event_manager.log_error_message("This is an error message")
+
         wait_for_events()
+
         self.assertIn('"level":"ERROR"', self.output_buffer.getvalue())
 
     def test_sample_processor(self):
         log_handler = LogHandler(self.config_path, True)
-        config = log_handler.config()
-        config.event.event_format = "json"
-
+        log_handler.config.event.event_format = "json"
         output_entry = OutputEntry(name="PrintOutput")
-        config.outputs.append(output_entry)
-
+        log_handler.config.outputs.append(output_entry)
         processor_entry = ProcessorEntry(name="SampleProcessor", parameters={"sampleSize": 2})
-        config.processors.append(processor_entry)
+        log_handler.config.processors.append(processor_entry)
 
         self.event_manager = EventManager(log_handler)
 
@@ -194,26 +195,25 @@ class TestEventManager(unittest.TestCase):
             self.event_manager.log_error_message(f"This is a test message {i}")
 
         wait_for_events()
+
         output = self.output_buffer.getvalue()
         for i in range(1, 10, 2):
             self.assertIn(f"This is a test message {i}", output)
 
     def test_filter_processor(self):
         log_handler = LogHandler(self.config_path, True)
-        config = log_handler.config()
-        config.event.event_format = "json"
-
+        log_handler.config.event.event_format = "json"
         output_entry = OutputEntry(name="PrintOutput")
-        config.outputs.append(output_entry)
-
+        log_handler.config.outputs.append(output_entry)
         processor_entry = ProcessorEntry(name="FilterProcessor", parameters={"termToFilter": ["test"]})
-        config.processors.append(processor_entry)
+        log_handler.config.processors.append(processor_entry)
 
         self.event_manager = EventManager(log_handler)
         self.event_manager.log_error_message("This is a test message")
         self.event_manager.log_error_message("This is a message without the term")
 
         wait_for_events()
+
         output = self.output_buffer.getvalue()
         self.assertIn("This is a message without the term", output)
         self.assertNotIn("This is a test message", output)
@@ -221,7 +221,7 @@ class TestEventManager(unittest.TestCase):
     def test_socket_output(self):
         log_handler = LogHandler(self.config_path)
         output_entry = OutputEntry(name="PrintOutput")
-        log_handler.config().outputs.append(output_entry)
+        log_handler.config.outputs.append(output_entry)
 
         socket_entry = OutputEntry(name="SocketOutput", parameters={
             "socketSettings": [SocketEntry("localhost", 6000)]

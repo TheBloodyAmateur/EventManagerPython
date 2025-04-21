@@ -55,19 +55,18 @@ class ManagerBase:
         """
         self.__initialise_processor_thread_and_outputs()
 
-        def event_thread():
-            try:
-                while True:
-                    event = self._event_queue.get()
+        def event_thread(stop_event: threading.Event):
+            while not stop_event.is_set():
+                try:
+                    event = self._event_queue.get(timeout=0.1)
                     if internal_event_manager:
                         self.output_event(event, internal_event_manager)
                     else:
                         self.output_event(event)
-            except KeyboardInterrupt:
-                pass
+                except queue.Empty:
+                    continue
 
-        thread = threading.Thread(target=event_thread, daemon=True)
-        thread.start()
+        self._thread_helper.start_event_thread(event_thread)
 
     def __initialise_processor_thread_and_outputs(self):
         """
@@ -76,15 +75,15 @@ class ManagerBase:
         self._processor_helper.initialise_processors()
         self._output_helper.initialise_outputs(self)
 
-        def processing_thread():
-            try:
-                while True:
-                    event = self._processing_queue.get()
+        def processing_thread(stop_event: threading.Event):
+            while not stop_event.is_set():
+                try:
+                    event = self._processing_queue.get(timeout=0.1)
                     event = self._processor_helper.process_event(event)
                     if event and event.strip():
                         self.write_event_to_queue(event)
-            except KeyboardInterrupt:
-                pass
+                except queue.Empty:
+                    continue
 
         self._thread_helper.start_processing_thread(processing_thread)
 
@@ -103,7 +102,7 @@ class ManagerBase:
                     print(f"Error processing remaining events: {str(e)}")
 
         self._thread_helper.stop_thread(
-            self._thread_helper.processing_thread, self._processing_queue, process_remaining_event
+            "process", self._thread_helper.processing_thread, self._processing_queue, process_remaining_event
         )
 
         def output_remaining_event(event):
@@ -116,7 +115,7 @@ class ManagerBase:
                     print(f"Error writing remaining events: {str(e)}")
 
         self._thread_helper.stop_thread(
-            self._thread_helper.processing_thread, self._event_queue, output_remaining_event
+            "event", self._thread_helper.processing_thread, self._event_queue, output_remaining_event
         )
 
     def write_event_to_queue(self, event):

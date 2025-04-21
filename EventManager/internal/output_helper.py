@@ -24,7 +24,6 @@ class OutputHelper():
     def __create_output_instance(self, class_name: str, parameters: dict = None) -> Output:
         try:
             package_prefix = "EventManager.outputs"
-            test = f"{package_prefix}.{class_name.lower()}"
             module = importlib.import_module(f"{package_prefix}.{class_name.lower()}")
             clazz = getattr(module, class_name)
 
@@ -128,7 +127,6 @@ class OutputHelper():
         Initializes the outputs based on the configuration provided in the LogHandler.
         :return: A list of initialized output instances.
         """
-        print("Class which called the initialise_outputs:", obj.__class__.__name__)
         for entry in self.__log_handler.config.get_outputs():
             output_instance = self.__create_output_instance(entry.name, entry.parameters)
             if output_instance is not None:

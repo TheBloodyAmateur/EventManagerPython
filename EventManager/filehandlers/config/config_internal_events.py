@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 class ConfigInternalEvents(BaseModel):
     __file_path: str = "/tmp/"
-    __file_name: str = "internal_events.log"
+    __file_name: str = "internal_events"
     __file_extension: str = ".log"
     __enabled: bool = True
 

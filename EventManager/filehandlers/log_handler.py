@@ -128,8 +128,8 @@ class LogHandler():
         :param file_extension: The file extension.
         :return: The new file name.
         """
-        current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S %z")
-        return f"{file_name}-{current_time}{file_extension}"
+        current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        return f"{file_name}-{current_time+file_extension}"
 
     def check_if_log_file_needs_rotation(self):
         log_file_path = self.config['log_file']['file_path']
@@ -203,8 +203,8 @@ class LogHandler():
         file_name = self.current_file_name
 
         log_file = os.path.join(log_file_path, f"{file_name}")
-        print("Creating log file:", log_file)
-        with open(log_file, 'w') as file:
+
+        with open(log_file, 'w', encoding='utf-8'):
             pass
 
     def create_internal_log_file(self):
@@ -213,11 +213,8 @@ class LogHandler():
         """
         internal_log_file_path = self.config.internal_events.file_path
         file_name = self.__current_internal_file_name
-        file_extension = self.config.internal_events.file_extension
 
-        internal_log_file = os.path.join(internal_log_file_path, f"{file_name}{file_extension}")
+        internal_log_file = os.path.join(internal_log_file_path, f"{file_name}")
 
-        print("Creating internal log file:", internal_log_file)
-
-        with open(internal_log_file, 'w') as file:
+        with open(internal_log_file, 'w', encoding='utf-8'):
             pass

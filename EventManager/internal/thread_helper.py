@@ -6,8 +6,15 @@ class ThreadHelper:
     """
     A helper class to manage threads in the EventManager.
     """
-    __event_thread: threading.Thread
-    __processing_thread: threading.Thread
+
+    def __init__(self):
+        """
+        Initializes the ThreadHelper.
+        """
+        self.__event_thread: threading.Thread
+        self.__processing_thread: threading.Thread
+        self.__event_thread_event: threading.Event = threading.Event()
+        self.__processing_thread_event: threading.Event = threading.Event()
 
     @property
     def event_thread(self):
@@ -31,7 +38,8 @@ class ThreadHelper:
         :param runnable:
         :return:
         """
-        self.__event_thread = threading.Thread(target=runnable)
+        self.__event_thread_event.clear()
+        self.__event_thread = threading.Thread(target=lambda : runnable(self.__event_thread_event))
         self.__event_thread.start()
 
     def start_processing_thread(self, runnable: callable):
@@ -40,10 +48,11 @@ class ThreadHelper:
         :param runnable:
         :return:
         """
-        self.__processing_thread = threading.Thread(target=runnable)
+        self.__processing_thread_event.clear()
+        self.__processing_thread = threading.Thread(target=lambda : runnable(self.__processing_thread_event))
         self.__processing_thread.start()
 
-    def stop_thread(self, thread: threading.Thread, q: queue.Queue, remaining_item_processor: callable):
+    def stop_thread(self, thread_name: str, thread: threading.Thread, q: queue.Queue, remaining_item_processor: callable):
         """
         Stops the thread and processes remaining items in the queue.
         :param thread:
@@ -51,6 +60,13 @@ class ThreadHelper:
         :param remaining_item_processor:
         :return:
         """
+
+        # Check to which thread the thread_name corresponds
+        if thread_name == "event":
+            self.__event_thread_event.set()
+        elif thread_name == "process":
+            self.__processing_thread_event.set()
+
         thread.join(timeout=1)
 
         # Drain remaining items from the queue
@@ -61,4 +77,3 @@ class ThreadHelper:
                     remaining_item_processor(event)
             except queue.Empty:
                 break
-        print("Thread stopped and remaining items processed.")

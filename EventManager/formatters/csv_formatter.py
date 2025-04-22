@@ -2,6 +2,9 @@ from EventManager.formatters.default_formatter import DefaultFormatter
 
 
 class CsvFormatter(DefaultFormatter):
+    """
+    CsvFormatter is a class that formats event data into CSV format.
+    """
     def format(self, metadata, *args):
         meta = ",".join(metadata.values())
         arg_values = ",".join(arg.get_value() for arg in args)

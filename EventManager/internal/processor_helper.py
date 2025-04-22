@@ -12,6 +12,9 @@ from EventManager.processors.sampleprocessor import SampleProcessor
 
 
 class ProcessorHelper():
+    """
+    The ProcessorHelper class is responsible for managing and processing events
+    """
     __log_handler = None
 
     def __init__(self, log_handler):
@@ -142,6 +145,11 @@ class ProcessorHelper():
         return False
 
     def remove_processor(self, identifier: Union[str, 'ProcessorEntry']) -> bool:
+        """
+        Removes a processor from the list of registered processors based on the provided identifier.
+        :param identifier: Either a string representing the processor name or a ProcessorEntry object.
+        :return: True if the processor was removed, False otherwise.
+        """
         if identifier is None:
             return False
 

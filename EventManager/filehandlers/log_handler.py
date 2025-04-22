@@ -103,7 +103,7 @@ class LogHandler():
                 self.__config = json.load(file)
             self.__initialise_internal_event_manager()
             self.__internal_event_manager.log_info("Config file loaded successfully.")
-        except FileNotFoundError  as e:
+        except (FileNotFoundError, IsADirectoryError)  as e:
             self.__config = Config()
             self.__initialise_internal_event_manager()
             self.__internal_event_manager.log_error(f"Could not load the config file. Using default values. Error: {str(e)}")

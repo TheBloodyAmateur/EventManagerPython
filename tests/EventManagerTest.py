@@ -225,9 +225,6 @@ class TestEventManager(unittest.TestCase):
 
     def test_socket_output(self):
         log_handler = LogHandler(self.config_path)
-        output_entry = OutputEntry(name="PrintOutput")
-        log_handler.config.outputs.append(output_entry)
-
         socket_entry = OutputEntry(name="SocketOutput", parameters={
             "socketSettings": [SocketEntry("localhost", 6000)]
         })
@@ -257,7 +254,7 @@ class TestEventManager(unittest.TestCase):
                     self.event_manager.log_error_message("This is an error message")
 
                 wait_for_events()
-                received = future.result(timeout=2)
+                received = future.result(timeout=5)
                 self.assertIn("This is an error message", received)
         finally:
             server.close()

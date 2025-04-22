@@ -1,8 +1,8 @@
 import socket
+from typing import TYPE_CHECKING
 
 from EventManager.outputs import Batch
 from EventManager.outputs.Output import Output
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from EventManager.internal_event_manager import InternalEventManager
@@ -20,7 +20,7 @@ class SocketOutput(Output):
         :param socket_settings: The settings for the socket output.
         """
         self.__socket_settings = socket_settings
-        self.__batch = Batch.Batch(max_size=65536)
+        self.__batch = Batch(max_size=65536)
 
     def write(self, loghandler: "LogHandler", event: str):
         if not self.__batch.try_add(event=event):

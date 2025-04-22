@@ -18,7 +18,7 @@ class OutputHelper():
 
         :param log_handler: An instance of LogHandler to handle logging.
         """
-        self.__outputs: list = []
+        self._outputs: list = []
         self.__log_handler: LogHandler = log_handler
 
     def __create_output_instance(self, class_name: str, parameters: dict = None) -> Output:
@@ -42,8 +42,8 @@ class OutputHelper():
         :param clazz: The class of the output instance to create.
         :return: An instance of the output class or None if the class is not recognized.
         """
-        if parameters is None:
-            return None
+        """if parameters is None:
+            return None"""
 
         if clazz.__name__ == "PrintOutput":
             return PrintOutput()
@@ -64,7 +64,7 @@ class OutputHelper():
                                        Defaults to self._log_handler if not provided.
         """
         context = internal_event_manager or self.__log_handler
-        for output in self.__outputs:
+        for output in self._outputs:
             output.write(context, event)
 
     def __is_output_already_registered(self, output):
@@ -73,7 +73,7 @@ class OutputHelper():
         :param output: The output instance to check.
         :return: True if the output is already registered, False otherwise.
         """
-        for existing_output in self.__outputs:
+        for existing_output in self._outputs:
             if type(existing_output) is type(output):
                 return True
         return False
@@ -87,7 +87,7 @@ class OutputHelper():
             return
         output_instance = self.__create_output_instance(output_entry.name, output_entry.parameters)
         if output_instance is not None and not self.__is_output_already_registered(output_instance):
-            self.__outputs.append(output_instance)
+            self._outputs.append(output_instance)
 
     def add_output(self, output_entry) -> bool:
         """
@@ -111,16 +111,16 @@ class OutputHelper():
             return False
 
         if isinstance(output, str):
-            for existing_output in self.__outputs:
+            for existing_output in self._outputs:
                 if existing_output.__class__.__name__.lower() == output.lower():
-                    self.__outputs.remove(existing_output)
+                    self._outputs.remove(existing_output)
                     return True
 
         elif isinstance(output, OutputEntry):
             instance = self.__create_output_instance(output.name, output.parameters)
-            for existing_output in self.__outputs:
+            for existing_output in self._outputs:
                 if type(existing_output) is type(instance):
-                    self.__outputs.remove(existing_output)
+                    self._outputs.remove(existing_output)
                     return True
 
         return False
@@ -133,4 +133,4 @@ class OutputHelper():
         for entry in self.__log_handler.config.get_outputs():
             output_instance = self.__create_output_instance(entry.name, entry.parameters)
             if output_instance is not None:
-                self.__outputs.append(output_instance)
+                self._outputs.append(output_instance)

@@ -18,4 +18,4 @@ You can install EventManagerPy using pip:
 pip install EventManagerPy
 ```
 
-[![Documentation Status](https://eventmanagerpython.readthedocs.io/en/latest/)](https://eventmanagerpython.readthedocs.io/en/latest/)
+All documentations, API references and tutorials you may find under [Project Documentation](https://eventmanagerpython.readthedocs.io/en/latest/)

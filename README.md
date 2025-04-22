@@ -16,3 +16,6 @@ You can install EventManagerPy using pip:
 
 ```bash
 pip install EventManagerPy
+```
+
+[![Documentation Status](https://eventmanagerpython.readthedocs.io/en/latest/)](https://eventmanagerpython.readthedocs.io/en/latest/)

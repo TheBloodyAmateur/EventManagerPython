@@ -14,7 +14,10 @@ if TYPE_CHECKING:
 
 
 class ManagerBase:
-
+    """
+    The ManagerBase is the base class for the EventManager and InternalEventManager. It handles the initialization
+    of the log handler, event processing, and output management.
+    """
     def __init__(self, log_handler = None, config_path: str = None):
         """
         Initializes the ManagerBase with either a LogHandler or a config path.

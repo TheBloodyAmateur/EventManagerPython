@@ -30,9 +30,9 @@ class EventManager(ManagerBase):
         :param config_path: Path to the configuration file.
         """
         if log_handler is not None:
-            super().__init__(log_handler)
+            super().__init__(log_handler=log_handler)
         elif config_path is not None:
-            super().__init__(config_path)
+            super().__init__(config_path=config_path)
 
         self.__internal_event_manager = self._log_handler.internal_event_manager
         self.__internal_event_manager.log_info("EventManager started successfully.")

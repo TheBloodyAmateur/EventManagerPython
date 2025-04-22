@@ -4,6 +4,9 @@ from EventManager.compressors.compressors import Compressors
 
 
 class GzipCompressor(Compressors):
+    """
+    The GzipCompressor class is responsible for compressing log files using the GZIP format.
+    """
     @staticmethod
     def compress(file_path: str):
         try:

@@ -2,6 +2,9 @@ from abc import ABC, abstractmethod
 
 
 class Compressors():
+    """
+    The Compressors class is an abstract base class for file compression utilities.
+    """
     @staticmethod
     @abstractmethod
     def compress(file_path: str) -> None:
@@ -10,7 +13,6 @@ class Compressors():
 
         :param file_path: Path to the file to be compressed.
         """
-        pass
         pass
 
     @staticmethod

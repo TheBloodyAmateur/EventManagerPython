@@ -16,10 +16,15 @@ class XmlFormatter(DefaultFormatter):
         return f"<{arg.get_key()}>{arg.get_value()}</{arg.get_key()}>"
 
     def format_arguments(self, body, *args):
-        builder = f"<{body}>"
+        builder = ""
+        body_tag = ""
         for arg in args:
-            builder += f"<{arg.get_key()}>{arg.get_value()}</{arg.get_key()}>"
-        return builder + f"</{body}>"
+            if isinstance(arg, str):
+                builder += f"<{arg}>"
+                body_tag = arg
+            else:
+                builder += f"<{arg.get_key()}>{arg.get_value()}</{arg.get_key()}>"
+        return builder + "</" + body_tag + ">"
 
     def _xml_metadata(self, metadata):
         return "<event>" + "".join(f"<{k}>{v}</{k}>" for k, v in metadata.items())

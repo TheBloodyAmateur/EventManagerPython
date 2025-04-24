@@ -1,8 +1,10 @@
 import threading
 import traceback
+import socket
 
 from EventManager.formatters.event_formatter import EventFormatter
 import time
+
 
 class EventCreator:
     """
@@ -16,15 +18,6 @@ class EventCreator:
     the EventCreator class, this should be kept in mind when creating events.
     """
 
-    __stack_trace_element: traceback.StackSummary = traceback.extract_stack()
-    __class_name: str = __stack_trace_element[-2].name
-    __method_name: str = __stack_trace_element[-1].name
-    __line_number: int = __stack_trace_element[-1].lineno
-    __event: str = ""
-    __event_format: str
-    __formatter: EventFormatter
-    __format_separator: str = " "
-
     def __init__(self, format="key-value"):
         """
         The constructor of the EventCreator class.
@@ -33,15 +26,32 @@ class EventCreator:
                        "key-value". If the format is not one of the specified formats, the default format is "key-value".
         """
 
+        self.__stack_trace_element: traceback.StackSummary = traceback.extract_stack()
+        self.__class_name: str = self.__stack_trace_element[-2].name
+        self.__method_name: str = self.__stack_trace_element[-2].name
+        self.__line_number: int = self.__stack_trace_element[-2].lineno
+        self.__event: str = ""
+        self.__event_format: str
+        self.__formatter: EventFormatter
+        self.__format_separator: str = " "
+
+        self.__event_format = format
+
         if format == "json":
-            self.event = {}
-            self.format_separator = ","
+            self.__event = "{"
+            self.__formatter = EventFormatter.JSON
+            self.__format_separator = ","
         elif format == "xml":
-            self.event = ["<event>"]
+            self.__formatter = EventFormatter.XML
+            self.__event = "<event>"
+            self.__format_separator = ""
         elif format == "csv":
-            self.format_separator = ","
+            self.__formatter = EventFormatter.CSV
+            self.__format_separator = ","
         else:
-            self.format_separator = " "
+            self.__event = ""
+            self.__formatter = EventFormatter.KEY_VALUE
+            self.__format_separator = " "
 
     def _append_element(self, key, value):
         """
@@ -50,14 +60,9 @@ class EventCreator:
         :param key: The key.
         :param value: The value.
         """
-        if self.__event_format == "json":
-            self.event[key] = value
-        elif self.__event_format == "xml":
-            self.event.append(f"<{key}>{value}</{key}>")
-        elif self.__event_format == "csv":
-            self.event.append(value)
-        else:
-            self.event.append(f"{key}={value}")
+        from EventManager.formatters import KeyValueWrapper
+
+        self.__event += self.__formatter.format_element(KeyValueWrapper(key, value))
 
     def _append_arguments(self, *args):
         """
@@ -65,16 +70,14 @@ class EventCreator:
 
         :param args: The arguments to append.
         """
-        for arg in args:
-            self._append_element("argument", arg)
-            self._append_separator()
+        self.__event += self.__formatter.format_arguments(self.__event, *args)
 
     def _append_separator(self):
         """
         Appends a separator to the event log.
         """
-        if self.__format_separator and self.__event_format not in ["json", "xml"]:
-            self.event.append(self.__format_separator)
+        if self.__format_separator is not None:
+            self.__event += self.__format_separator
 
     def line_number(self) -> "EventCreator":
         """
@@ -82,7 +85,8 @@ class EventCreator:
 
         :return: The EventCreator instance.
         """
-        self._append_element("line_number", self.__line_number)
+        self._append_element("line_number", str(self.__line_number))
+        self._append_separator()
         return self
 
     def class_name(self) -> "EventCreator":
@@ -92,6 +96,7 @@ class EventCreator:
         :return: The EventCreator instance.
         """
         self._append_element("class_name", self.__class_name)
+        self._append_separator()
         return self
 
     def method_name(self) -> "EventCreator":
@@ -110,6 +115,7 @@ class EventCreator:
 
         :return: The EventCreator instance.
         """
+
         def is_valid_time_format(time_format: str) -> bool:
             if time_format is None or time_format.strip() == "":
                 return False
@@ -120,9 +126,9 @@ class EventCreator:
                 return False
 
         if is_valid_time_format(timestamp_format):
-            self._append_element("timestamp", time.strftime(timestamp_format))
+            self._append_element("timestamp", str(time.strftime(timestamp_format)))
         else:
-            timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
+            timestamp = str(time.strftime("%Y-%m-%d %H:%M:%S"))
             self._append_element("timestamp", timestamp)
         self._append_separator()
         return self
@@ -134,7 +140,7 @@ class EventCreator:
         :param level: The level of the event log.
         :return: The EventCreator instance.
         """
-        self._append_element("level", level)
+        self._append_element("level", str(level))
         self._append_separator()
         return self
 
@@ -206,7 +212,7 @@ class EventCreator:
         :param message: The message to append.
         :return: The EventCreator instance.
         """
-        self._append_element("message", message)
+        self._append_element("message", str(message))
         self._append_separator()
         return self
 
@@ -218,6 +224,7 @@ class EventCreator:
         :return: The EventCreator instance.
         """
         self._append_arguments(*args)
+        self._append_separator()
         return self
 
     def thread_id(self) -> "EventCreator":
@@ -236,7 +243,7 @@ class EventCreator:
 
         :return: The EventCreator instance.
         """
-        self._append_element("thread_name", threading.current_thread().name)
+        self._append_element("thread_name", str(threading.current_thread().name))
         self._append_separator()
         return self
 
@@ -246,7 +253,7 @@ class EventCreator:
 
         :return: The EventCreator instance.
         """
-        self._append_element("hostname", threading.get_ident())
+        self._append_element("hostname", str(socket.gethostname()))
         self._append_separator()
         return self
 
@@ -256,7 +263,7 @@ class EventCreator:
 
         :return: The EventCreator instance.
         """
-        self._append_element("ip_address", threading.get_ident())
+        self._append_element("ip_address", str(socket.gethostbyname(socket.gethostname())))
         self._append_separator()
         return self
 
@@ -267,11 +274,13 @@ class EventCreator:
         :return: The event log.
         """
         if self.__event_format == "json":
-            return str(self.event).replace("'", '"')
+            self.__event = self.__event.rstrip(self.__format_separator)
+            return self.__event + "}"
         elif self.__event_format == "xml":
-            self.event.append("</event>")
-            return "".join(self.event)
+            self.__event += "</event>"
+            return "".join(self.__event)
         elif self.__event_format == "csv":
-            return self.format_separator.join(self.event)
+            self.__event = self.__event.rstrip(self.__format_separator)
+            return self.__event
         else:
-            return self.format_separator.join(self.event)
+            return self.__format_separator.join(self.__event)

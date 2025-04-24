@@ -18,5 +18,15 @@ class JsonFormatter(DefaultFormatter):
         return json.dumps({arg.get_key(): arg.get_value()})[1:-1]
 
     def format_arguments(self, body, *args):
-        arg_data = {arg.get_key(): arg.get_value() for arg in args}
-        return f'"{body}": ' + json.dumps(arg_data)
+
+        #arg_data = {arg.get_key(): arg.get_value() for arg in args}
+        arg_data = {}
+        for arg in args:
+            if isinstance(arg, str):
+                arg_data = {arg: arg}
+            elif arg.get_key() == "args":
+                arg_data[arg.get_key()] = arg.get_value()
+                break
+
+
+        return "\"args\": " + json.dumps(arg_data)

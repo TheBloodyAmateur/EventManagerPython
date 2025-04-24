@@ -3,12 +3,6 @@ Tutorial
 
 This tutorial walks you through a basic setup of EventManager in a Python project.
 
-1. **Install the package**
-
-   .. code-block:: bash
-
-      pip install EventManager
-
 2. **Basic Usage**
 
    .. code-block:: python
@@ -23,4 +17,4 @@ This tutorial walks you through a basic setup of EventManager in a Python projec
 
    You can configure outputs, add processors, and switch to JSON or CSV formatting.
 
-See :doc:`top_level` for details on top-level APIs.
+See the main page for details on top-level APIs.

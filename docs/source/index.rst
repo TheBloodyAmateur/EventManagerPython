@@ -12,7 +12,22 @@ It supports rich output formats, modular processors, and advanced logging config
 Getting Started
 ---------------
 
-To begin using EventManager, check out the :doc:`tutorial`.
+To begin using EventManager, check out the :doc:`tutorial/tutorial`.
+
+Tutorial
+------------
+
+This section provides a step-by-step guide to get you started with EventManager.
+It covers installation, basic usage, and advanced configurations.
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Tutorial
+
+   tutorial/installation
+   tutorial/tutorial
+   tutorial/config_file
+   tutorial/event_creator
 
 API Documentation
 -----------------
@@ -23,15 +38,9 @@ Below you can find API references for the entire library, categorized by compone
    :maxdepth: 2
    :caption: API Reference
 
-   top_level
    compressors
    filehandlers
    formatters
    internal
    outputs
    processors
-
-Other Resources
----------------
-
-- :doc:`tutorial`

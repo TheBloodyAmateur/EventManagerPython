@@ -39,7 +39,7 @@ class EnrichingProcessor(Processor):
     def __enrich_kv_event(self, event):
         builder = [event]
         for field in self.__enriching_fields:
-            builder.append(f'{field}="{self.__get_value(field)}" ')
+            builder.append(f' {field}="{self.__get_value(field)}"')
         return ''.join(builder)
 
     def __enrich_json_event(self, event):

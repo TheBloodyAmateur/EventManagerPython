@@ -19,8 +19,11 @@ class RegexProcessor:
 
     def _process_event(self, event: str, format: str) -> str:
         for entry in self.regex_entries:
-            regex = self._process_regex(format, entry.field_name, entry.regex)
-            replacement = self._process_regex(format, entry.field_name, entry.replacement)
+            name = entry.field_name
+            regex = entry.regex
+            replacement = entry.replacement
+            regex = self._process_regex(format, name, regex)
+            replacement = self._process_regex(format, name, replacement)
             event = re.sub(regex, replacement, event)
         return event
 

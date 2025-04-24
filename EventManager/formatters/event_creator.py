@@ -278,9 +278,10 @@ class EventCreator:
             return self.__event + "}"
         elif self.__event_format == "xml":
             self.__event += "</event>"
-            return "".join(self.__event)
+            return self.__event
         elif self.__event_format == "csv":
             self.__event = self.__event.rstrip(self.__format_separator)
             return self.__event
         else:
-            return self.__format_separator.join(self.__event)
+            self.__event = self.__event.rstrip(self.__format_separator)
+            return self.__event

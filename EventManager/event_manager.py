@@ -89,7 +89,7 @@ class EventManager(ManagerBase):
 
         # EventCreator
         elif isinstance(first, EventCreator):
-            self.write_event_to_queue(first.create())
+            self.write_event_to_processing_queue(first.create())
 
         # KeyValueWrapper-style (assuming multiple structured args)
         elif len(args) > 1 or isinstance(first, KeyValueWrapper):
@@ -119,7 +119,7 @@ class EventManager(ManagerBase):
 
         # EventCreator
         elif isinstance(first, EventCreator):
-            self.write_event_to_queue(first.create())
+            self.write_event_to_processing_queue(first.create())
 
         # KeyValueWrapper-style (assuming multiple structured args)
         elif len(args) > 1 or isinstance(first, KeyValueWrapper):
@@ -149,7 +149,7 @@ class EventManager(ManagerBase):
 
         # EventCreator
         elif isinstance(first, EventCreator):
-            self.write_event_to_queue(first.create())
+            self.write_event_to_processing_queue(first.create())
 
         # KeyValueWrapper-style (assuming multiple structured args)
         elif len(args) > 1 or isinstance(first, KeyValueWrapper):
@@ -181,7 +181,7 @@ class EventManager(ManagerBase):
 
         # EventCreator
         elif isinstance(first, EventCreator):
-            self.write_event_to_queue(first.create())
+            self.write_event_to_processing_queue(first.create())
 
         # KeyValueWrapper-style (assuming multiple structured args)
         elif len(args) > 1 or isinstance(first, KeyValueWrapper):
@@ -213,7 +213,7 @@ class EventManager(ManagerBase):
 
         # EventCreator
         elif isinstance(first, EventCreator):
-            self.write_event_to_queue(first.create())
+            self.write_event_to_processing_queue(first.create())
 
         # KeyValueWrapper-style (assuming multiple structured args)
         elif len(args) > 1 or isinstance(first, KeyValueWrapper):

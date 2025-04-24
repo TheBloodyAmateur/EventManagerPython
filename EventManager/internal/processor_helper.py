@@ -2,6 +2,7 @@ import importlib
 from typing import Union
 
 from EventManager.filehandlers.config.processor_entry import ProcessorEntry
+from EventManager.filehandlers.config.regex_entry import RegexEntry
 from EventManager.processors import Processor
 from EventManager.processors.enrichingprocessor import EnrichingProcessor
 from EventManager.processors.filterprocessor import FilterProcessor
@@ -65,7 +66,15 @@ class ProcessorHelper():
                 return EnrichingProcessor(enriching_fields)
             elif clazz == RegexProcessor:
                 regex_entries = parameters.get("regexEntries", [])
-                return RegexProcessor(regex_entries)
+                parameters: list[RegexEntry] = []
+
+                for entry in regex_entries:
+                    field_name = entry.get("field_name")
+                    regex = entry.get("regex")
+                    replacement = entry.get("replacement")
+                    parameters.append(RegexEntry(field_name, regex, replacement))
+
+                return RegexProcessor(regex_entries=parameters)
             elif clazz == FilterProcessor:
                 term_to_filter = parameters.get("termToFilter", [])
                 return FilterProcessor(term_to_filter)

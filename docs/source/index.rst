@@ -6,7 +6,7 @@
 Welcome to EventManager's Documentation!
 ========================================
 
-EventManager is a powerful and flexible logging library for Java-style event logging in Python.
+EventManager is a powerful and flexible logging library for event logging in Python.
 It supports rich output formats, modular processors, and advanced logging configurations.
 
 Getting Started
@@ -28,6 +28,9 @@ It covers installation, basic usage, and advanced configurations.
    tutorial/tutorial
    tutorial/config_file
    tutorial/event_creator
+   tutorial/event_format
+   tutorial/processors
+   tutorial/outputs
 
 API Documentation
 -----------------
@@ -38,9 +41,9 @@ Below you can find API references for the entire library, categorized by compone
    :maxdepth: 2
    :caption: API Reference
 
-   compressors
-   filehandlers
-   formatters
-   internal
-   outputs
-   processors
+   api/compressors
+   api/filehandlers
+   api/formatters
+   api/internal
+   api/outputs
+   api/processors

@@ -5,4 +5,4 @@ To install EventManager, you can use pip, the Python package manager. Open your 
 
 .. code-block:: bash
 
-      pip install EventManager
+      pip install EventManagerPy

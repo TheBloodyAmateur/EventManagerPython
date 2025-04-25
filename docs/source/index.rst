@@ -6,8 +6,21 @@
 Welcome to EventManager's Documentation!
 ========================================
 
-EventManager is a powerful and flexible logging library for event logging in Python.
-It supports rich output formats, modular processors, and advanced logging configurations.
+EventManager is a powerful and flexible, asynchronous logging library for event logging in Python. It follows the goal
+to provide developers the possibility to create custom event logging systems that can be tailored to their specific
+needs. The configuration options range from setting up event formats, defining how events are processed, to specifying
+how and where the events are outputted.
+
+The events are logged in a asynchronous manner, which means that the logging process does not block the main thread of
+the application. To offer extensive features when it comes to processing and outputting events the library relies on a
+pipeline.
+
+.. image:: _static/pipeline.png
+  :width: 750
+  :alt: An image showing the pipeline of EventManager
+
+Events are generated, passed to the processing thread, which processes and/or enriches events and are then passed to the
+output thread, which handles the output of the events.
 
 Getting Started
 ---------------

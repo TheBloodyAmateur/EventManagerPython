@@ -57,7 +57,7 @@ The ``event`` object defines settings about the events themselves:
 - ``informationalMode``: Enable or disable the informational mode and therefore save the info events (Default: ``false``)
 - ``printAndSaveToFile``: An option to both save the events in a file, but also print them out in the console (Default: ``false``)
 - ``printToConsole``: If enabled only prints the events in the console and doesn't write them to a log file (Default: ``false``)
-- ``timeFormat``: The time format specified for the events. Must be a valid time format as per the `DateTimeFormatter documentation <https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html>`_. If invalid, EventManager falls back to a default. (Default: ``"dd.MM.yyyy h:mm:ss.SSS a z"``)
+- ``timeFormat``: The time format specified for the events. If invalid, EventManager falls back to a default. (Default: ``"dd.MM.yyyy h:mm:ss.SSS a z"``)
 - ``eventFormat``: Specifies the format of the events. Options include ``csv``, ``xml``, ``json``, ``kv`` (Key-Value) or the default format. (Default: ``default``)
 
 Log File
